@@ -1,0 +1,8 @@
+outlook;humidity;wind;tennis
+sunny;high;strong;false
+sunny;normal;weak;true
+rain;high;weak;true
+rain;normal;strong;false
+sunny;normal;strong;false
+sunny;high;weak;false
+rain;normal;weak;true
