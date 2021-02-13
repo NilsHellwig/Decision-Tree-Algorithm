@@ -38,7 +38,7 @@ public class Main {
     }
 
     public static Knoten lerne(ArrayList<HashMap<String,String>> dataset, String targetAttribute, ArrayList<String> attributes, HashMap<String,ArrayList<String>> possibleValuesForAttributes){
-        // Schritt 1/2
+        // Schritt 1 und 2
         ArrayList<String> valuesOfTargetAttributeInDataset = new ArrayList<>();
         for(HashMap<String,String> datapoint: dataset){
             valuesOfTargetAttributeInDataset.add(datapoint.get(targetAttribute));
@@ -48,7 +48,6 @@ public class Main {
         if (uniqueValuesFoundForTargetAttribute.size() == 1){
             Knoten root = new Knoten();
             root.setLabel(uniqueValuesFoundForTargetAttribute.toArray()[0].toString());
-            System.out.println(root.getLabel());
             return root;
         }
 
@@ -62,11 +61,61 @@ public class Main {
 
         // Schritt 4
         String bestAttribute = getAttributeWithHighestInformationGain(dataset, targetAttribute, attributes, possibleValuesForAttributes);
-        System.out.println(bestAttribute);
+        Knoten root = new Knoten();
 
+        // Schritt 5
+        root.setAttribute(bestAttribute);
 
+        // Schritt 6
+        ArrayList<Knoten> children = new ArrayList<Knoten>();
+        for (String possibleValue: possibleValuesForAttributes.get(bestAttribute)){
 
-        return new Knoten();
+            // Schritt 7
+            Knoten rootChild;
+
+            // Schritt 8
+            ArrayList<HashMap<String,String>> datasetForChild = createSubSetOfData(dataset, bestAttribute, possibleValue);
+
+            // Schritt 9
+            if (datasetForChild.size() == 0){
+                // Schritt 10 - ??
+                rootChild = new Knoten();
+                rootChild.setLabel(mvc(targetAttribute, dataset));
+                rootChild.setValue(possibleValue);
+                children.add(rootChild);
+            } else {
+                ArrayList<String> attributesWithoutBestAttribute = new ArrayList<>();
+                for (String att: attributes){
+                    if (att != bestAttribute){
+                        attributesWithoutBestAttribute.add(att);
+                    }
+                }
+                rootChild = lerne(datasetForChild, targetAttribute, attributesWithoutBestAttribute, possibleValuesForAttributes);
+                rootChild.setValue(possibleValue);
+                children.add(rootChild);
+            }
+        }
+
+        // Gebe neue Verbindungen aus
+        for(Knoten child: children){
+            System.out.println("["+root.getAttribute()+" "+root.getValue()+" "+root.getLabel()+"] --> ["+child.getAttribute()+" "+child.getValue()+" "+child.getLabel()+"]");
+            if (!root.getAttribute().equals("") && !child.getAttribute().equals("")) {
+                System.out.println(root.getAttribute() + "? -> " + child.getAttribute()+"?");
+            }
+
+        }
+
+        return root;
+    }
+
+    public static ArrayList<HashMap<String,String>> createSubSetOfData(ArrayList<HashMap<String,String>> dataset, String attributeToSplit, String valueOfAttributeToSplit){
+        ArrayList<HashMap<String,String>> filteredDataset = new ArrayList<HashMap<String,String>>();
+        for (HashMap<String,String> datapoint: dataset){
+            if (datapoint.get(attributeToSplit).equals(valueOfAttributeToSplit)){
+                filteredDataset.add(datapoint);
+            }
+        }
+        return filteredDataset;
     }
 
     public static String mvc(String targetAttribute, ArrayList<HashMap<String,String>> dataset){
@@ -81,7 +130,7 @@ public class Main {
         String mostFrequentValueForAttribute = "";
         int mostFrequentValueCount = 0;
         for (String attributeKey: valueCounter.keySet()){
-            System.out.println(attributeKey+" "+valueCounter.get(attributeKey));
+            //System.out.println(attributeKey+" "+valueCounter.get(attributeKey));
             if (valueCounter.get(attributeKey) > mostFrequentValueCount){
                 mostFrequentValueForAttribute = attributeKey;
                 mostFrequentValueCount = valueCounter.get(attributeKey);
@@ -125,13 +174,13 @@ public class Main {
         }
         double lowest_Entropie = 0;
         for(String attributeName: informationGains.keySet()){
-            System.out.println("Gain for "+attributeName+" "+informationGains.get(attributeName));
+            // System.out.println("Gain for "+attributeName+" "+informationGains.get(attributeName));
             if (informationGains.get(attributeName) > lowest_Entropie){
                 lowest_Entropie = informationGains.get(attributeName);
                 bestAttribute = attributeName;
             }
         }
-        System.out.println("<log> best Attribute is "+bestAttribute);
+        // System.out.println("<log> best Attribute is "+bestAttribute);
         return bestAttribute;
     }
 
