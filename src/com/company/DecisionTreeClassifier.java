@@ -39,7 +39,7 @@ public class DecisionTreeClassifier {
     }
 
     private Knoten lerne(ArrayList<HashMap<String,String>> dataset, String targetAttribute, ArrayList<String> attributes){
-        // Schritt 1 und 2
+        // Schritt 2
         ArrayList<String> valuesOfTargetAttributeInDataset = new ArrayList<>();
         for(HashMap<String,String> datapoint: dataset){
             valuesOfTargetAttributeInDataset.add(datapoint.get(targetAttribute));
