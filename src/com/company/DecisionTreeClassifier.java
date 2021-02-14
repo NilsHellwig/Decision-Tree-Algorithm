@@ -1,7 +1,5 @@
 package com.company;
 
-import java.io.BufferedReader;
-import java.io.FileReader;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -12,19 +10,21 @@ public class DecisionTreeClassifier {
     private Knoten root;
     private ArrayList<HashMap<String,String>> dataset;
     private HashMap<String,ArrayList<String>> possibleValuesForAttributes;
-    public DecisionTreeClassifier(String trainingDataSetPath, String targetAttribute, ArrayList<String> attributes) {
+    private ArrayList<String> attributes;
 
-        getData(trainingDataSetPath);
+    public DecisionTreeClassifier(String trainingDataSetPath, String targetAttribute, ArrayList<String> attrs) {
 
+        dataset = CsvHelper.readFile(trainingDataSetPath);
+        attributes = attrs;
         // "Trainiere" den Baum
-        trainDecisionTree(trainingDataSetPath, targetAttribute, attributes, dataset);
+        trainDecisionTree(targetAttribute, dataset);
     }
 
     public String predict(HashMap<String, String> obeservation) {
         return root.predict(obeservation);
     }
 
-    private void trainDecisionTree(String trainingDataSetPath, String targetAttribute, ArrayList<String> attributes, ArrayList<HashMap<String,String>> dataset){
+    private void trainDecisionTree(String targetAttribute, ArrayList<HashMap<String,String>> dataset){
         /* Diese Hashmap schaut anhand der Trainingsdaten, welche
          Werte ein Attribut überhaupt annehmen kann z.B. das Attribut Sex hat die Werte: male/female.
          Anhand der Trainingsdaten wird dies ermittelt. */
@@ -220,30 +220,44 @@ public class DecisionTreeClassifier {
         }
     }
 
-    private void getData(String path){
-        dataset = new ArrayList<HashMap<String,String>>();
-        try (BufferedReader br = new BufferedReader(new FileReader(path))) {
-            String line;
-            int i = 0;
-            String[] attributes = new String[13];
-            while((line = br.readLine()) != null) {
-                /* Quelle von diesem regulären Ausdruck: https://stackoverflow.com/questions/1757065/java-splitting-a-comma-separated-string-but-ignoring-commas-in-quotes
-                 Dies wird geprüft, da es CSV-Dateien gibt, bei denen innerhalb von Anführungszeichen " " ein Komma (";") ist.
-                 Dies kann zu Problemen führen, da ; der Delimiter ist. Für unseren gegebenen Datensatz ist dies aber keine Limitation */
-                String[] tokens = line.split(";(?=(?:[^\"]*\"[^\"]*\")*[^\"]*$)", -1);
-                if(i==0){
-                    attributes = tokens;
-                } else {
-                    HashMap<String, String> datapoint = new HashMap<String, String>();
-                    for (int k = 0; k < attributes.length; k++) {
-                        datapoint.put(attributes[k], tokens[k]);
-                    }
-                    dataset.add(datapoint);
-                }
-                i++;
-            }
-        } catch (Exception e){
-            System.out.println("loading dataset failed because of: "+e);
+
+    public ArrayList<HashMap<String, String>> predictCsv(String filePath) throws Exception {
+        return predictCsv(filePath, null);
+    }
+
+    public ArrayList<HashMap<String, String>> predictCsv(String filePath, String targetAttribute) throws Exception {
+        if(root == null) {
+            throw new Exception("Classifier is not trained yet");
         }
+        boolean eval = targetAttribute != null;
+        double tp = 0;
+        double fp = 0;
+
+        ArrayList<HashMap<String,String>> toPredict = CsvHelper.readFile(filePath);
+
+        for(HashMap<String, String> map : toPredict) {
+            HashMap<String, String> observation = new HashMap<String, String>();
+            for(String s : attributes) {
+                observation.put(s, map.get(s));
+            }
+            String prediction = root.predict(observation);
+            map.put("prediction", prediction);
+
+            if(eval) {
+                if(map.get("prediction").equals(map.get(targetAttribute))) {
+                    tp++;
+                }else{
+                    fp++;
+                }
+            }
+        }
+
+        if(eval) {
+            double precision = tp/(tp+fp);
+            System.out.println(new StringBuilder().append("Precision: ").append(precision).append(" / True Positive: ").append(tp).append(" / False Positive: ").append(fp));
+        }
+
+        return toPredict;
+
     }
 }

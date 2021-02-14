@@ -18,7 +18,7 @@ public class Main {
 
         DecisionTreeClassifier dtc = new DecisionTreeClassifier(trainingDataSetPath, targetAttribute, attributes);
 
-
+        /*
         // Teste den Baum anhand eines Beispiels
         HashMap<String, String> example = new HashMap<String, String>()
         {{
@@ -31,8 +31,14 @@ public class Main {
         }};
 
         System.out.println(dtc.predict(example));
+         */
 
-
+        try {
+            ArrayList<HashMap<String, String>> preds = dtc.predictCsv(trainingDataSetPath, "Survived");
+            CsvHelper.writeFile("./predictions.csv", preds);
+        }catch(Exception e){
+            e.printStackTrace();
+        }
     }
 
 }
