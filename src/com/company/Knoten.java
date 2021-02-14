@@ -66,7 +66,7 @@ public class Knoten {
                         example.remove(attributeKey);
                         HashMap<String,String> reducedAttributes = example;
                         if (!child.getLabel().equals("")){
-                            System.out.println(getAttribute()+" -----> <"+child.getLabel()+">");
+                            System.out.println(getAttribute()+" --"+child.getValue()+"--> <"+child.getLabel()+">");
                         } else {
                             System.out.println(getAttribute() + " ---"+child.getValue()+"--> " + child.getAttribute());
                         }
