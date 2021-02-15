@@ -15,7 +15,7 @@ public class DecisionTreeClassifier {
     public DecisionTreeClassifier(String trainingDataSetPath, String targetAttribute, ArrayList<String> attrs) {
         dataset = CsvHelper.readFile(trainingDataSetPath);
         attributes = attrs;
-        // "Trainiere" den Baum
+        // Trainiere den Baum
         trainDecisionTree(targetAttribute, dataset);
     }
 
