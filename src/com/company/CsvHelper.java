@@ -13,7 +13,7 @@ public class CsvHelper {
         try (BufferedReader br = new BufferedReader(new FileReader(path))) {
             String line;
             int i = 0;
-            String[] attributes = new String[13];
+            String[] attributes = new String[0];
             while((line = br.readLine()) != null) {
                 /* Quelle von diesem regulären Ausdruck: https://stackoverflow.com/questions/1757065/java-splitting-a-comma-separated-string-but-ignoring-commas-in-quotes
                  Dies wird geprüft, da es CSV-Dateien gibt, bei denen innerhalb von Anführungszeichen " " ein Komma (";") ist.

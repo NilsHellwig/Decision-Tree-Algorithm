@@ -13,7 +13,6 @@ public class DecisionTreeClassifier {
     private ArrayList<String> attributes;
 
     public DecisionTreeClassifier(String trainingDataSetPath, String targetAttribute, ArrayList<String> attrs) {
-
         dataset = CsvHelper.readFile(trainingDataSetPath);
         attributes = attrs;
         // "Trainiere" den Baum
@@ -79,11 +78,11 @@ public class DecisionTreeClassifier {
 
             // Schritt 9
             if (datasetForChild.size() == 0){
-                // Schritt 10 - ??
                 rootChild = new Knoten();
                 rootChild.setLabel(mvc(targetAttribute, dataset));
                 rootChild.setValue(possibleValue);
                 children.add(rootChild);
+            // Schritt 10
             } else {
                 ArrayList<String> attributesWithoutBestAttribute = new ArrayList<>();
                 for (String att: attributes){
@@ -144,7 +143,7 @@ public class DecisionTreeClassifier {
         ArrayList<String> possibleValuesForTargetAttribute = possibleValuesForAttributes.get(targetAttribute);
 
         // Zunächst wird die Entropie(E) berechnet
-        double entropie_e = getEntropy(dataset, targetAttribute, possibleValuesForTargetAttribute);
+        double entropy_e = getEntropy(dataset, targetAttribute, possibleValuesForTargetAttribute);
 
         // für jedes Attribute wird nun der Information Gain berechnet
         for(String attribute : attributes){
@@ -163,16 +162,18 @@ public class DecisionTreeClassifier {
                 double ev_e = (countOccuranceOfValueForAttribute / dataset.size())*getEntropy(filteredDataset,targetAttribute,possibleValuesForTargetAttribute);
                 sum+=ev_e;
             }
-            double informationGain = entropie_e-sum;
+            double informationGain = entropy_e-sum;
             informationGains.put(attribute, informationGain);
         }
-        double lowest_Entropie = 0;
+        double lowest_information_gain = 0;
         for(String attributeName: informationGains.keySet()){
-            if (informationGains.get(attributeName) > lowest_Entropie){
-                lowest_Entropie = informationGains.get(attributeName);
+            if (informationGains.get(attributeName) > lowest_information_gain){
+                lowest_information_gain = informationGains.get(attributeName);
                 bestAttribute = attributeName;
             }
-            if (lowest_Entropie == 0){
+            /* Damit auch, wenn kein Attribut einen InformationGain > 0 hat die
+               ganze Methode ein Attribut zurückgibt, wird auch der Fall == 0 geprüft */
+            if (lowest_information_gain == 0){
                 bestAttribute = attributeName;
             }
         }
@@ -180,7 +181,7 @@ public class DecisionTreeClassifier {
     }
 
     private double getEntropy(ArrayList<HashMap<String,String>> dataset, String targetAttribute, ArrayList<String> possibleValuesForTargetAttribute){
-        double entropie = 0.0;
+        double entropy = 0.0;
         for (String attributeValue : possibleValuesForTargetAttribute){
             double countOccuranceOfValueForZielLabel = 0.0;
             for (HashMap<String,String> datapoint: dataset){
@@ -194,9 +195,9 @@ public class DecisionTreeClassifier {
             } else {
                 partOfEntropy = -(countOccuranceOfValueForZielLabel/dataset.size())*log2(countOccuranceOfValueForZielLabel/dataset.size());
             }
-            entropie+= partOfEntropy;
+            entropy+= partOfEntropy;
         }
-        return entropie;
+        return entropy;
     }
 
     private double log2(double N){
@@ -219,7 +220,6 @@ public class DecisionTreeClassifier {
             possibleValuesForAttributes.put(attributes[k],possibleValuesForAttribute);
         }
     }
-
 
     public ArrayList<HashMap<String, String>> predictCsv(String filePath) throws Exception {
         return predictCsv(filePath, null);

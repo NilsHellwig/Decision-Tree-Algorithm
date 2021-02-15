@@ -15,7 +15,6 @@ public class Main {
 
         // Definiere, welches Attribut vorausgesagt werden soll
         String targetAttribute = "Survived";
-
         DecisionTreeClassifier dtc = new DecisionTreeClassifier(trainingDataSetPath, targetAttribute, attributes);
 
         /*
