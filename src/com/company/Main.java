@@ -1,11 +1,12 @@
 package com.company;
 import java.io.*;
 import java.util.*;
-
+import java.io.PrintStream;
+import java.io.FileOutputStream;
 
 public class Main {
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws FileNotFoundException {
         // Definiere Pfad der Traingsdaten
         String trainingDataSetPath = "src/dataset/train.csv";
 
@@ -15,8 +16,13 @@ public class Main {
 
         // Definiere, welches Attribut vorausgesagt werden soll
         String targetAttribute = "Survived";
-        DecisionTreeClassifier dtc = new DecisionTreeClassifier(trainingDataSetPath, targetAttribute, attributes);
+        // Test PrintStream
+        PrintStream logStream;
 
+        logStream = new PrintStream(new FileOutputStream("search_graph.dot"));
+        logStream.println("digraph G{");
+        DecisionTreeClassifier dtc = new DecisionTreeClassifier(trainingDataSetPath, targetAttribute, attributes, logStream);
+        logStream.println("}");
         /*
         // Teste den Baum anhand eines Beispiels
         HashMap<String, String> example = new HashMap<String, String>()

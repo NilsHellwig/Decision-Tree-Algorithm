@@ -1,5 +1,6 @@
 package com.company;
 
+import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -11,10 +12,12 @@ public class DecisionTreeClassifier {
     private ArrayList<HashMap<String,String>> dataset;
     private HashMap<String,ArrayList<String>> possibleValuesForAttributes;
     private ArrayList<String> attributes;
+    public PrintStream logStream;
 
-    public DecisionTreeClassifier(String trainingDataSetPath, String targetAttribute, ArrayList<String> attrs) {
+    public DecisionTreeClassifier(String trainingDataSetPath, String targetAttribute, ArrayList<String> attrs, PrintStream logStream) {
         dataset = CsvHelper.readFile(trainingDataSetPath);
         attributes = attrs;
+        this.logStream = logStream;
         // Trainiere den Baum
         trainDecisionTree(targetAttribute, dataset);
     }
@@ -102,6 +105,7 @@ public class DecisionTreeClassifier {
         // Gebe neue Verbindungen aus
         for(Knoten child: children){
             System.out.println("[ <Question: "+root.getAttribute()+"> <Value of Edge: "+root.getValue()+"> <Label: "+root.getLabel()+"> ] --> [ <Question: "+child.getAttribute()+"> < Value of Edge: "+child.getValue()+"> < Label: "+child.getLabel()+"> ]");
+            logStream.println("a -> b;");
         }
 
         return root;
