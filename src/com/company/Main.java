@@ -23,6 +23,7 @@ public class Main {
         logStream.println("digraph G{");
         DecisionTreeClassifier dtc = new DecisionTreeClassifier(trainingDataSetPath, targetAttribute, attributes, logStream);
         logStream.println("}");
+        logStream.close();
         /*
         // Teste den Baum anhand eines Beispiels
         HashMap<String, String> example = new HashMap<String, String>()
