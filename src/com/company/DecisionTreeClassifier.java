@@ -1,16 +1,20 @@
 package com.company;
 
+import com.company.clustering.Centroid;
+import com.company.clustering.DataPoint;
+import com.company.clustering.EuclideanDistance;
+import com.company.clustering.KMeansClustering;
+
 import java.io.PrintStream;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.LinkedHashSet;
+import java.util.*;
+
+import static java.util.stream.Collectors.toSet;
 
 public class DecisionTreeClassifier {
 
     private Knoten root;
-    private ArrayList<HashMap<String,String>> dataset;
-    private HashMap<String,ArrayList<String>> possibleValuesForAttributes;
+    private ArrayList<HashMap<String, String>> dataset;
+    private HashMap<String, ArrayList<String>> possibleValuesForAttributes;
     private ArrayList<String> attributes;
     public PrintStream logStream;
 
@@ -18,46 +22,44 @@ public class DecisionTreeClassifier {
         dataset = CsvHelper.readFile(trainingDataSetPath);
         attributes = attrs;
         this.logStream = logStream;
-        // Trainiere den Baum
-        trainDecisionTree(targetAttribute, dataset);
     }
 
     public String predict(HashMap<String, String> obeservation) {
         return root.predict(obeservation);
     }
 
-    private void trainDecisionTree(String targetAttribute, ArrayList<HashMap<String,String>> dataset){
+    public void trainDecisionTree(String targetAttribute) {
         /* Diese Hashmap schaut anhand der Trainingsdaten, welche
          Werte ein Attribut überhaupt annehmen kann z.B. das Attribut Sex hat die Werte: male/female.
          Anhand der Trainingsdaten wird dies ermittelt. */
         getPossibleValuesForAttributes(dataset);
 
         // Prüfe, ob Laden der CSV-Datei funktioniert hat, durch ausgeben der ersten Zeile mit Daten
-        System.out.println("<log> check dataset: "+dataset.get(0));
+        System.out.println("<log> check dataset: " + dataset.get(0));
 
         // Erstelle den Startknoten
-        root = lerne(dataset,targetAttribute,attributes);
+        root = lerne(dataset, targetAttribute, attributes);
 
     }
 
-    private Knoten lerne(ArrayList<HashMap<String,String>> dataset, String targetAttribute, ArrayList<String> attributes){
+    private Knoten lerne(ArrayList<HashMap<String, String>> dataset, String targetAttribute, ArrayList<String> attributes) {
         // Schritt 2
         ArrayList<String> valuesOfTargetAttributeInDataset = new ArrayList<>();
-        for(HashMap<String,String> datapoint: dataset){
+        for (HashMap<String, String> datapoint : dataset) {
             valuesOfTargetAttributeInDataset.add(datapoint.get(targetAttribute));
         }
         HashSet<String> uniqueValuesFoundForTargetAttribute = new HashSet<String>();
         uniqueValuesFoundForTargetAttribute.addAll(valuesOfTargetAttributeInDataset);
-        if (uniqueValuesFoundForTargetAttribute.size() == 1){
+        if (uniqueValuesFoundForTargetAttribute.size() == 1) {
             Knoten root = new Knoten();
             root.setLabel(uniqueValuesFoundForTargetAttribute.toArray()[0].toString());
             return root;
         }
 
         // Schritt 3
-        if (attributes.size() == 0){
+        if (attributes.size() == 0) {
             Knoten root = new Knoten();
-            String label = mvc(targetAttribute, dataset);
+            String label = mcv(targetAttribute, dataset);
             root.setLabel(label);
             return root;
         }
@@ -71,25 +73,25 @@ public class DecisionTreeClassifier {
 
         // Schritt 6
         ArrayList<Knoten> children = new ArrayList<Knoten>();
-        for (String possibleValue: possibleValuesForAttributes.get(bestAttribute)){
+        for (String possibleValue : possibleValuesForAttributes.get(bestAttribute)) {
 
             // Schritt 7
             Knoten rootChild;
 
             // Schritt 8
-            ArrayList<HashMap<String,String>> datasetForChild = createSubSetOfData(dataset, bestAttribute, possibleValue);
+            ArrayList<HashMap<String, String>> datasetForChild = createSubSetOfData(dataset, bestAttribute, possibleValue);
 
             // Schritt 9
-            if (datasetForChild.size() == 0){
+            if (datasetForChild.size() == 0) {
                 rootChild = new Knoten();
-                rootChild.setLabel(mvc(targetAttribute, dataset));
+                rootChild.setLabel(mcv(targetAttribute, dataset));
                 rootChild.setValue(possibleValue);
                 children.add(rootChild);
-            // Schritt 10
+                // Schritt 10
             } else {
                 ArrayList<String> attributesWithoutBestAttribute = new ArrayList<>();
-                for (String att: attributes){
-                    if (att != bestAttribute){
+                for (String att : attributes) {
+                    if (att != bestAttribute) {
                         attributesWithoutBestAttribute.add(att);
                     }
                 }
@@ -103,35 +105,45 @@ public class DecisionTreeClassifier {
         root.setChildren(children);
 
         // Gebe neue Verbindungen aus
-        for(Knoten child: children){
-            System.out.println("[ <Question: "+root.getAttribute()+"> <Value of Edge: "+root.getValue()+"> <Label: "+root.getLabel()+"> ] --> [ <Question: "+child.getAttribute()+"> < Value of Edge: "+child.getValue()+"> < Label: "+child.getLabel()+"> ]");
-            if(child.getAttribute().equals("")){
-                logStream.println(root.getAttribute()+"_"+root.nodeId+" -> prediction__"+child.getLabel()+"__"+child.nodeId+"[label=\""+child.getValue()+"\"];");
+        for (Knoten child : children) {
+            System.out.println("[ <Question: " + root.getAttribute() + "> <Value of Edge: " + root.getValue() + "> <Label: " + root.getLabel() + "> ] --> [ <Question: " + child.getAttribute() + "> < Value of Edge: " + child.getValue() + "> < Label: " + child.getLabel() + "> ]");
+            if (child.getAttribute().equals("")) {
+                logStream.println(root.getAttribute() + "_" + root.nodeId + " -> prediction__" + child.getLabel() + "__" + child.nodeId + "[label=\"" + child.getValue() + "\"];");
             } else {
-                logStream.println(root.getAttribute()+"_"+root.nodeId+" -> "+child.getAttribute()+"_"+child.nodeId+"[label=\""+child.getValue()+"\"];");
+                logStream.println(root.getAttribute() + "_" + root.nodeId + " -> " + child.getAttribute() + "_" + child.nodeId + "[label=\"" + child.getValue() + "\"];");
             }
         }
 
         return root;
     }
 
-    private ArrayList<HashMap<String,String>> createSubSetOfData(ArrayList<HashMap<String,String>> dataset, String attributeToSplit, String valueOfAttributeToSplit){
-        ArrayList<HashMap<String,String>> filteredDataset = new ArrayList<HashMap<String,String>>();
-        for (HashMap<String,String> datapoint: dataset){
-            if (datapoint.get(attributeToSplit).equals(valueOfAttributeToSplit)){
+    private ArrayList<HashMap<String, String>> createSubSetOfData(ArrayList<HashMap<String, String>> dataset, String attributeToSplit, String valueOfAttributeToSplit) {
+        ArrayList<HashMap<String, String>> filteredDataset = new ArrayList<HashMap<String, String>>();
+        for (HashMap<String, String> datapoint : dataset) {
+            if (datapoint.get(attributeToSplit).equals(valueOfAttributeToSplit)) {
                 filteredDataset.add(datapoint);
             }
         }
         return filteredDataset;
     }
 
-    private String mvc(String targetAttribute, ArrayList<HashMap<String,String>> dataset){
+    private String mcv(String targetAttribute, ArrayList<HashMap<String, String>> dataset) {
+        return mcv(targetAttribute, dataset, false);
+    }
+
+    private String mcv(String targetAttribute, ArrayList<HashMap<String,String>> dataset, boolean ignoreEmptyOrNull){
         HashMap<String,Integer> valueCounter = new HashMap<String,Integer>();
         for(HashMap<String,String> datapoint: dataset){
-            if (valueCounter.containsKey(datapoint.get(targetAttribute))){
-                valueCounter.put(datapoint.get(targetAttribute), valueCounter.get(datapoint.get(targetAttribute))+1);
+
+            String value = datapoint.get(targetAttribute);
+            if(ignoreEmptyOrNull && (value == null || "".equals(value))) {
+                continue;
+            }
+
+            if (valueCounter.containsKey(value)){
+                valueCounter.put(value, valueCounter.get(value)+1);
             } else {
-                valueCounter.put(datapoint.get(targetAttribute),1);
+                valueCounter.put(value, 1);
             }
         }
         String mostFrequentValueForAttribute = "";
@@ -267,5 +279,77 @@ public class DecisionTreeClassifier {
 
         return toPredict;
 
+    }
+
+    public void discretise(String columnName, int clusterAmount) {
+        if(dataset.size() == 0){
+            return;
+        }
+        boolean isNumber = true;
+
+        String mcv = mcv(columnName, dataset, true);
+        ArrayList<DataPoint> dataPoints = new ArrayList<DataPoint>();
+        //quartile, quantile,
+        int count = 0;
+        for(int i = 0; i<dataset.size(); i++) {
+            HashMap<String, String> row = dataset.get(i);
+            if(row.get(columnName) == null || "".equals(row.get(columnName))){
+                //put most common value if value is missing
+                row.put(columnName, mcv);
+            }
+            String value = row.get(columnName);
+            //if a non-int value appears, its non numerical
+            if(!value.matches("(\\d+)|(\\d+.\\d+)")){
+                System.out.println("Column contains non numerical data, returning...");
+                System.out.println("Data:");
+                System.out.println(value);
+                return;
+            }
+            dataPoints.add(EntryToDataPoint(row, columnName, (new StringBuilder("Node").append(i)).toString()));
+            count++;
+
+        }
+        Map<Centroid, List<DataPoint>> clusters = cluster(dataPoints, clusterAmount, 1000);
+        reassignClusteredValues(clusters, columnName);
+
+/*
+        StringBuilder sb = new StringBuilder();
+
+        sb.append("Cluster").append(",").append("Age");
+        for(HashMap<String, String> row : dataset) {
+//            for(String entry : row.keySet() ){
+                sb.append(row.get("Age")).append(",").append(row.get("Age_____old"));
+//            }
+            sb.append("\n");
+        }
+
+        System.out.println(sb.toString());
+        System.exit(0);
+*/
+
+    }
+
+    private Map<Centroid, List<DataPoint>> cluster(List<DataPoint> data, int k, int maxIterations) {
+        Map<Centroid, List<DataPoint>> clusters = KMeansClustering.fit(data, k, new EuclideanDistance(), 1000);
+        return clusters;
+    }
+
+    private void reassignClusteredValues(Map<Centroid, List<DataPoint>> clusters, String columnName) {
+        clusters.forEach((key, value) -> {
+            for(DataPoint d : value) {
+                int idx = Integer.parseInt(d.getIdentifier().replace("Node", ""));
+                dataset.get(idx).put(columnName + "_____old", dataset.get(idx).get(columnName));
+                dataset.get(idx).put(columnName, key.getId());
+            }
+        });
+    }
+
+    //a data point needs an identifying feature, so we can associate it back with the original entry
+    private static DataPoint EntryToDataPoint(HashMap<String, String> data, String feature, String identifyingFeature) {
+        Map<String, Double> coords = new HashMap<String, Double>();
+        //this could be expanded so the data points contain more than one dimension, but thats not neccessary here
+        double d = Double.parseDouble(data.get(feature));
+        coords.put(feature, d);
+        return new DataPoint(coords, identifyingFeature);
     }
 }

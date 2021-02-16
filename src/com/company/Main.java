@@ -24,6 +24,10 @@ public class Main {
         DecisionTreeClassifier dtc = new DecisionTreeClassifier(trainingDataSetPath, targetAttribute, attributes, logStream);
         logStream.println("}");
         logStream.close();
+        dtc.discretise("Age", 4);
+        // Trainiere den Baum
+        dtc.trainDecisionTree(targetAttribute);
+
         /*
         // Teste den Baum anhand eines Beispiels
         HashMap<String, String> example = new HashMap<String, String>()
