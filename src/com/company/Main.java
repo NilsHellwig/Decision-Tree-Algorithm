@@ -19,7 +19,7 @@ public class Main {
         // Test PrintStream
         PrintStream logStream;
 
-        logStream = new PrintStream(new FileOutputStream("search_graph.dot"));
+        logStream = new PrintStream(new FileOutputStream("decision_tree.dot"));
         logStream.println("digraph G{");
         DecisionTreeClassifier dtc = new DecisionTreeClassifier(trainingDataSetPath, targetAttribute, attributes, logStream);
         logStream.println("}");

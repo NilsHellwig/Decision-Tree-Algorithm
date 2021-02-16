@@ -105,7 +105,11 @@ public class DecisionTreeClassifier {
         // Gebe neue Verbindungen aus
         for(Knoten child: children){
             System.out.println("[ <Question: "+root.getAttribute()+"> <Value of Edge: "+root.getValue()+"> <Label: "+root.getLabel()+"> ] --> [ <Question: "+child.getAttribute()+"> < Value of Edge: "+child.getValue()+"> < Label: "+child.getLabel()+"> ]");
-            logStream.println("a -> b;");
+            if(child.getAttribute().equals("")){
+                logStream.println(root.getAttribute()+"_"+root.nodeId+" -> prediction__"+child.getLabel()+"__"+child.nodeId+"[label=\""+child.getValue()+"\"];");
+            } else {
+                logStream.println(root.getAttribute()+"_"+root.nodeId+" -> "+child.getAttribute()+"_"+child.nodeId+"[label=\""+child.getValue()+"\"];");
+            }
         }
 
         return root;
