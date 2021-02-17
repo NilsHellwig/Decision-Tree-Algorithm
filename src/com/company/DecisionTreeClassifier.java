@@ -66,9 +66,9 @@ public class DecisionTreeClassifier {
 
         // Schritt 4
         String bestAttribute = getAttributeWithHighestInformationGain(dataset, targetAttribute, attributes, possibleValuesForAttributes);
-        Knoten root = new Knoten();
 
         // Schritt 5
+        Knoten root = new Knoten();
         root.setAttribute(bestAttribute);
 
         // Schritt 6
