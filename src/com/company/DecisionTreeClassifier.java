@@ -187,13 +187,8 @@ public class DecisionTreeClassifier {
         }
         double lowest_information_gain = 0;
         for(String attributeName: informationGains.keySet()){
-            if (informationGains.get(attributeName) > lowest_information_gain){
+            if (informationGains.get(attributeName) >= lowest_information_gain){
                 lowest_information_gain = informationGains.get(attributeName);
-                bestAttribute = attributeName;
-            }
-            /* Damit auch, wenn kein Attribut einen InformationGain > 0 hat die
-               ganze Methode ein Attribut zurückgibt, wird auch der Fall == 0 geprüft */
-            if (lowest_information_gain == 0){
                 bestAttribute = attributeName;
             }
         }
