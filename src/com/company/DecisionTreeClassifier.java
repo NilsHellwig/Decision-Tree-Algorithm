@@ -25,7 +25,7 @@ public class DecisionTreeClassifier {
      * @param trainingDataSetPath path to the training data set
      * @param targetAttribute name of the target attribute (column name)
      * @param attrs name of columns used for classification
-     * @param logStream for generation of output
+     * @param logStream for writing lines in graph .dot file
      */
     public DecisionTreeClassifier(String trainingDataSetPath, String targetAttribute, ArrayList<String> attrs, PrintStream logStream) {
         dataset = CsvHelper.readFile(trainingDataSetPath);
@@ -155,10 +155,14 @@ public class DecisionTreeClassifier {
         // Gebe neue Verbindungen aus
         for (Knoten child : children) {
             System.out.println("[ <Question: " + root.getAttribute() + "> <Value of Edge: " + root.getValue() + "> <Label: " + root.getLabel() + "> ] --> [ <Question: " + child.getAttribute() + "> < Value of Edge: " + child.getValue() + "> < Label: " + child.getLabel() + "> ]");
-            if (child.getAttribute().equals("")) {
-                logStream.println(root.getAttribute() + "_" + root.nodeId + " -> prediction__" + child.getLabel() + "__" + child.nodeId + "[label=\"" + child.getValue() + "\"];");
+            if(child.getAttribute().equals("")){
+                logStream.println("\""+root.getAttribute()+"\\n"+root.nodeId+"\" -> \"Prediction: "+child.getLabel()+"\\n"+child.nodeId+"\" [label=\""+child.getValue()+"\"];");
+                logStream.println("\"Prediction: "+child.getLabel()+"\\n"+child.nodeId+"\" [shape=box, style=filled, color=red];");
+                if(child.getLabel().equals("1")){
+                    logStream.println("\"Prediction: "+child.getLabel()+"\\n"+child.nodeId+"\" [shape=box, style=filled, color=green];");
+                }
             } else {
-                logStream.println(root.getAttribute() + "_" + root.nodeId + " -> " + child.getAttribute() + "_" + child.nodeId + "[label=\"" + child.getValue() + "\"];");
+                logStream.println("\""+root.getAttribute()+"\\n"+root.nodeId+"\" -> \""+child.getAttribute()+"\\n"+child.nodeId+"\" [label=\""+child.getValue()+"\"];");
             }
         }
 
