@@ -339,6 +339,7 @@ public class DecisionTreeClassifier {
                     }
                 }
             }catch(Exception e) {
+                e.printStackTrace(System.err);
                 System.out.println("Error during discretizing, skipping observation...");
             }
         }
@@ -377,7 +378,7 @@ public class DecisionTreeClassifier {
             }
             String value = row.get(columnName);
             //if a non-int value appears, its non numerical
-            if(!value.matches("(\\d+)|(\\d+.\\d+)")){
+                if(!value.matches("(\\d+)|(\\d+.\\d+)")){
                 System.out.println("Column contains non numerical data, returning...");
                 System.out.println("Data:");
                 System.out.println(value);
@@ -468,5 +469,13 @@ public class DecisionTreeClassifier {
      */
     public void registerDiscretization(String column, int k) {
         discretizations.put(column, k);
+    }
+
+    public static HashMap<String, ArrayList<HashMap<String, String>>> trainTestValidateSplit(ArrayList<HashMap<String, String>> dataset) {
+        HashMap<String, ArrayList<HashMap<String, String>>> splits = new HashMap<String, ArrayList<HashMap<String, String>>>();
+
+
+
+        return splits;
     }
 }
