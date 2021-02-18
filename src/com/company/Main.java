@@ -11,7 +11,7 @@ public class Main {
         String trainingDataSetPath = "src/dataset/train.csv";
 
         // Definiere, welche Attribute genutzt werden sollen, um das TargetAttribute vorauszusagen
-        List<String> attributesList = Arrays.asList( "Pclass", "Sex", "SibSp","Age","Parch","Embarked");
+        List<String> attributesList = Arrays.asList( "Pclass", "Sex", "SibSp","Age","Parch","Embarked", "Fare");
         ArrayList<String> attributes = new ArrayList<>(attributesList);
 
         // Definiere, welches Attribut vorausgesagt werden soll
