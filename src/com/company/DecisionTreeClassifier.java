@@ -25,7 +25,7 @@ public class DecisionTreeClassifier {
      * @param trainingDataSetPath path to the training data set
      * @param targetAttribute name of the target attribute (column name)
      * @param attrs name of columns used for classification
-     * @param logStream for generation of output
+     * @param logStream for writing lines in graph .dot file
      */
     public DecisionTreeClassifier(String trainingDataSetPath, String targetAttribute, ArrayList<String> attrs, PrintStream logStream) {
         dataset = CsvHelper.readFile(trainingDataSetPath);
