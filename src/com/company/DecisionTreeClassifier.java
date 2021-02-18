@@ -422,7 +422,7 @@ public class DecisionTreeClassifier {
                 clusterMinValue = Math.min(clusterMinValue, d.getFeatures().get(columnName));
                 clusterMaxValue = Math.max(clusterMaxValue, d.getFeatures().get(columnName));
            }
-            String clusterName = new StringBuilder().append("Cluster[").append(clusterMinValue).append("-").append(clusterMaxValue).append("]").toString();
+            String clusterName = new StringBuilder().append(columnName).append("[").append(clusterMinValue).append("-").append(clusterMaxValue).append("]").toString();
             key.setId(clusterName);
 
             for(DataPoint d : value) {
