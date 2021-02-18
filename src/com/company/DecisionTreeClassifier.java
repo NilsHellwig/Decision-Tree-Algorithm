@@ -364,7 +364,6 @@ public class DecisionTreeClassifier {
         if(data.size() == 0){
             return;
         }
-        boolean isNumber = true;
 
         String mcv = mcv(columnName, data, true);
         ArrayList<DataPoint> dataPoints = new ArrayList<DataPoint>();
@@ -372,6 +371,9 @@ public class DecisionTreeClassifier {
         //iterate over dataset
         for(int i = 0; i<data.size(); i++) {
             HashMap<String, String> row = data.get(i);
+            if(data.get(i) == null){
+                System.out.println("ASD");
+            }
             if(row.get(columnName) == null || "".equals(row.get(columnName))){
                 //put most common value if value is missing
                 row.put(columnName, mcv);
@@ -471,10 +473,28 @@ public class DecisionTreeClassifier {
         discretizations.put(column, k);
     }
 
-    public static HashMap<String, ArrayList<HashMap<String, String>>> trainTestValidateSplit(ArrayList<HashMap<String, String>> dataset) {
+    public static HashMap<String, ArrayList<HashMap<String, String>>> trainTestValidateSplit(ArrayList<HashMap<String, String>> dataset, double testSize, double validateSize) {
         HashMap<String, ArrayList<HashMap<String, String>>> splits = new HashMap<String, ArrayList<HashMap<String, String>>>();
 
+        splits.put("test", new ArrayList<HashMap<String, String>>());
+        splits.put("validate", new ArrayList<HashMap<String, String>>());
 
+        int testAmount = (int) (testSize * dataset.size());
+        int validateAmount = (int) (validateSize * dataset.size());
+
+        Random r = new Random();
+        for(int i = 0; i<testAmount; i++){
+            int idx = r.nextInt(testAmount);
+            splits.get("test").add(dataset.remove(idx));
+        }
+
+        for(int i = 0; i<validateAmount; i++){
+            int idx = r.nextInt(validateAmount);
+            splits.get("validate").add(dataset.remove(idx));
+        }
+        splits.put("train", dataset);
+
+        System.out.println(new StringBuilder().append("Train: ").append(splits.get("train").size()).append(" Test:").append(splits.get("test").size()).append(" Validate:").append(splits.get("validate").size()).toString());
 
         return splits;
     }

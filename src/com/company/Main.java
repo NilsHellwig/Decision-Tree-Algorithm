@@ -24,6 +24,7 @@ public class Main {
         logStream.println("digraph G{");
         DecisionTreeClassifier dtc = new DecisionTreeClassifier(trainingDataSetPath, targetAttribute, attributes, logStream);
         dtc.registerDiscretization("Age", 8);
+        dtc.registerDiscretization("Fare", 1);
 
         // Trainiere den Baum
         dtc.trainDecisionTree(targetAttribute);
@@ -45,7 +46,7 @@ public class Main {
          */
 
         try {
-            ArrayList<HashMap<String, String>> preds = dtc.predictCsv(testSetDataPath, "Survived");
+            ArrayList<HashMap<String, String>> preds = dtc.predictCsv(trainingDataSetPath, "Survived");
             CsvHelper.writeFile("./predictions.csv", preds);
         }catch(Exception e){
             e.printStackTrace();
