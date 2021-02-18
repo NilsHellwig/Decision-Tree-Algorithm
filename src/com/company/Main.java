@@ -24,7 +24,8 @@ public class Main {
         DecisionTreeClassifier dtc = new DecisionTreeClassifier(trainingDataSetPath, targetAttribute, attributes, logStream);
         logStream.println("}");
         logStream.close();
-        dtc.discretise("Age", 4);
+        dtc.registerDiscretization("Age", 8);
+
         // Trainiere den Baum
         dtc.trainDecisionTree(targetAttribute);
 

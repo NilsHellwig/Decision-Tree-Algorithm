@@ -15,20 +15,68 @@ public class DecisionTreeClassifier {
     private Knoten root;
     private ArrayList<HashMap<String, String>> dataset;
     private HashMap<String, ArrayList<String>> possibleValuesForAttributes;
+    private HashMap<String, Integer> discretizations;
     private ArrayList<String> attributes;
+    private HashMap<String, List<Centroid>> centroids;
     public PrintStream logStream;
 
+    /**
+     * Creates a decision tree classifier
+     * @param trainingDataSetPath path to the training data set
+     * @param targetAttribute name of the target attribute (column name)
+     * @param attrs name of columns used for classification
+     * @param logStream for generation of output
+     */
     public DecisionTreeClassifier(String trainingDataSetPath, String targetAttribute, ArrayList<String> attrs, PrintStream logStream) {
         dataset = CsvHelper.readFile(trainingDataSetPath);
         attributes = attrs;
         this.logStream = logStream;
+        discretizations = new HashMap<String, Integer>();
+        centroids = new HashMap<String, List<Centroid>>();
     }
 
-    public String predict(HashMap<String, String> obeservation) {
+    /**
+     * Predict the target attribute for an observation
+     * @param obeservation Hash map containing the values of an observation
+     * @return prediction result
+     * @throws Exception if value that should be discretized is non numerical
+     */
+    public String predict(HashMap<String, String> obeservation) throws Exception {
+        prepareObeservation(obeservation);
         return root.predict(obeservation);
     }
 
+    /**
+     * Prepares the observation by putting most common value in missing values and discretizing the specified numerical values
+     * @param observation Hash map containing the values of an observation
+     * @throws Exception  if value that should be discretized is non numerical
+     */
+    private void prepareObeservation(HashMap<String, String> observation) throws Exception {
+        for(String columnName : discretizations.keySet()) {
+            String value = observation.get(columnName);
+            if("".equals(value) || value == null) {
+                String mcv = mcv(columnName + "_____old", dataset, true);
+                observation.put(columnName, mcv);
+            }
+            DataPoint d = EntryToDataPoint(observation, columnName, "newValue");
+            List<Centroid> centroidList = centroids.get(columnName);
+            //we dont know if the data has been seen before already, so instead we try to find the closest centroid to it
+            //and use its nane as value
+            Centroid c = KMeansClustering.findClosestCentroid(centroidList, d, new EuclideanDistance());
+            replaceObservationValue(observation, columnName, c.getId());
+
+        }
+    }
+
+    /**
+     * Actual Decision Tree training algorithm
+     * @param targetAttribute specified target attribute
+     */
     public void trainDecisionTree(String targetAttribute) {
+        //apply discretization on the registered columns
+        for(String key : discretizations.keySet()) {
+            discretise(dataset, key, discretizations.get(key));
+        }
         /* Diese Hashmap schaut anhand der Trainingsdaten, welche
          Werte ein Attribut überhaupt annehmen kann z.B. das Attribut Sex hat die Werte: male/female.
          Anhand der Trainingsdaten wird dies ermittelt. */
@@ -131,6 +179,13 @@ public class DecisionTreeClassifier {
         return mcv(targetAttribute, dataset, false);
     }
 
+    /**
+     * Get the most common value for an attribute
+     * @param targetAttribute the specified attribute/column
+     * @param dataset dataset to get the mcv from
+     * @param ignoreEmptyOrNull false if empty/null values should be treated as actual value, true else
+     * @return
+     */
     private String mcv(String targetAttribute, ArrayList<HashMap<String,String>> dataset, boolean ignoreEmptyOrNull){
         HashMap<String,Integer> valueCounter = new HashMap<String,Integer>();
         for(HashMap<String,String> datapoint: dataset){
@@ -241,10 +296,23 @@ public class DecisionTreeClassifier {
         }
     }
 
+    /**
+     * predict based on a csv file
+     * @param filePath path to the specified file
+     * @return
+     * @throws Exception if classifier is not trained
+     */
     public ArrayList<HashMap<String, String>> predictCsv(String filePath) throws Exception {
         return predictCsv(filePath, null);
     }
 
+    /**
+     * predict and evaluate a csv file
+     * @param filePath path to specified file
+     * @param targetAttribute target attribute used for evaluation
+     * @return
+     * @throws Exception if classifier is not trained
+     */
     public ArrayList<HashMap<String, String>> predictCsv(String filePath, String targetAttribute) throws Exception {
         if(root == null) {
             throw new Exception("Classifier is not trained yet");
@@ -255,23 +323,28 @@ public class DecisionTreeClassifier {
 
         ArrayList<HashMap<String,String>> toPredict = CsvHelper.readFile(filePath);
 
+
         for(HashMap<String, String> map : toPredict) {
             HashMap<String, String> observation = new HashMap<String, String>();
             for(String s : attributes) {
                 observation.put(s, map.get(s));
             }
-            String prediction = root.predict(observation);
-            map.put("prediction", prediction);
-
-            if(eval) {
-                if(map.get("prediction").equals(map.get(targetAttribute))) {
-                    tp++;
-                }else{
-                    fp++;
+            try{
+                String prediction = predict(observation);
+                map.put("prediction", prediction);
+                if(eval) {
+                    if(map.get("prediction").equals(map.get(targetAttribute))) {
+                        tp++;
+                    }else{
+                        fp++;
+                    }
                 }
+            }catch(Exception e) {
+                System.out.println("Error during discretizing, skipping observation...");
             }
         }
 
+        //calculate the precision
         if(eval) {
             double precision = tp/(tp+fp);
             System.out.println(new StringBuilder().append("Precision: ").append(precision).append(" / True Positive: ").append(tp).append(" / False Positive: ").append(fp));
@@ -281,18 +354,24 @@ public class DecisionTreeClassifier {
 
     }
 
-    public void discretise(String columnName, int clusterAmount) {
-        if(dataset.size() == 0){
+    /**
+     * Discretise a whole dataset by k-means-clustering
+     * @param data dataset containing the values
+     * @param columnName column to be discretized
+     * @param clusterAmount k for k-means
+     */
+    private void discretise(ArrayList<HashMap<String, String>> data, String columnName, int clusterAmount) {
+        if(data.size() == 0){
             return;
         }
         boolean isNumber = true;
 
-        String mcv = mcv(columnName, dataset, true);
+        String mcv = mcv(columnName, data, true);
         ArrayList<DataPoint> dataPoints = new ArrayList<DataPoint>();
-        //quartile, quantile,
-        int count = 0;
-        for(int i = 0; i<dataset.size(); i++) {
-            HashMap<String, String> row = dataset.get(i);
+
+        //iterate over dataset
+        for(int i = 0; i<data.size(); i++) {
+            HashMap<String, String> row = data.get(i);
             if(row.get(columnName) == null || "".equals(row.get(columnName))){
                 //put most common value if value is missing
                 row.put(columnName, mcv);
@@ -305,51 +384,80 @@ public class DecisionTreeClassifier {
                 System.out.println(value);
                 return;
             }
+            //turn the entry it into a datapoint
             dataPoints.add(EntryToDataPoint(row, columnName, (new StringBuilder("Node").append(i)).toString()));
-            count++;
 
         }
+        //cluster the datapoints into k centroids
         Map<Centroid, List<DataPoint>> clusters = cluster(dataPoints, clusterAmount, 1000);
-        reassignClusteredValues(clusters, columnName);
-
-/*
-        StringBuilder sb = new StringBuilder();
-
-        sb.append("Cluster").append(",").append("Age");
-        for(HashMap<String, String> row : dataset) {
-//            for(String entry : row.keySet() ){
-                sb.append(row.get("Age")).append(",").append(row.get("Age_____old"));
-//            }
-            sb.append("\n");
-        }
-
-        System.out.println(sb.toString());
-        System.exit(0);
-*/
-
+        //write the cluster names into the column used, write the column used into "[columnUser]_____old"
+        reassignClusteredValues(data, clusters, columnName);
     }
 
+
+    /**
+     * clusters the data
+     * @param data data to be clustered
+     * @param k number of clusters
+     * @param maxIterations number of iterations
+     * @return map of centroids and their corresponding data points
+     */
     private Map<Centroid, List<DataPoint>> cluster(List<DataPoint> data, int k, int maxIterations) {
-        Map<Centroid, List<DataPoint>> clusters = KMeansClustering.fit(data, k, new EuclideanDistance(), 1000);
+        Map<Centroid, List<DataPoint>> clusters = KMeansClustering.fit(data, k, new EuclideanDistance(), maxIterations);
         return clusters;
     }
 
-    private void reassignClusteredValues(Map<Centroid, List<DataPoint>> clusters, String columnName) {
+    /**
+     * write the cluster names into the column used, write the column used into "[columnUser]_____old"
+     * @param data data to be adjusted
+     * @param clusters map of clusters and their data points
+     * @param columnName column to be replaced
+     */
+    private void reassignClusteredValues(ArrayList<HashMap<String, String>> data, Map<Centroid, List<DataPoint>> clusters, String columnName) {
+        centroids.put(columnName, new ArrayList<Centroid>());
         clusters.forEach((key, value) -> {
+            centroids.get(columnName).add(key);
             for(DataPoint d : value) {
                 int idx = Integer.parseInt(d.getIdentifier().replace("Node", ""));
-                dataset.get(idx).put(columnName + "_____old", dataset.get(idx).get(columnName));
-                dataset.get(idx).put(columnName, key.getId());
+                String clusterName = key.getId();
+                replaceObservationValue(data.get(idx), columnName, clusterName);
             }
         });
     }
 
-    //a data point needs an identifying feature, so we can associate it back with the original entry
+    /**
+     * Creates a one dimensional data point (1-d vector) for clustering
+     * @param data observation
+     * @param feature feature of the observation to be used
+     * @param identifyingFeature a data point needs an identifying feature, so we can associate it back with the original entry
+     * @return
+     */
     private static DataPoint EntryToDataPoint(HashMap<String, String> data, String feature, String identifyingFeature) {
         Map<String, Double> coords = new HashMap<String, Double>();
         //this could be expanded so the data points contain more than one dimension, but thats not neccessary here
         double d = Double.parseDouble(data.get(feature));
         coords.put(feature, d);
         return new DataPoint(coords, identifyingFeature);
+    }
+
+    /**
+     * replaces a value of an observation and backs it up into value_____old
+     * @param observation observation containing values
+     * @param columnName name of the value within the observation
+     * @param newValue replacement of the value
+     */
+    private static void replaceObservationValue(HashMap<String, String> observation, String columnName, String newValue) {
+        String valueOld = observation.get(columnName);
+        observation.put(columnName + "_____old", valueOld);
+        observation.put(columnName, newValue);
+    }
+
+    /**
+     * registers a column of the dataset for discretization
+     * @param column column name
+     * @param k k for k-means clustering
+     */
+    public void registerDiscretization(String column, int k) {
+        discretizations.put(column, k);
     }
 }

@@ -7,10 +7,31 @@ import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toSet;
 
 //example for k-means-clustering taken from here https://www.baeldung.com/java-k-means-clustering-algorithm
-
+//basically record has only been refactored into DataPoint
+//this also supports more than one dimension
 public class KMeansClustering {
 
     private static final Random random = new Random();
+
+    /**
+     * Method added customly, to classify an unseen datapoint into the existing centroids
+     * @param centroids list of centroids
+     * @param dataPoint data point to be classified into
+     * @param distance distance measure
+     * @return the centroid that is closes to the datapoint
+     */
+    public static Centroid findClosestCentroid(List<Centroid> centroids, DataPoint dataPoint,  EuclideanDistance distance) {
+        double maxDistance = -1;
+        Centroid closestCentroid = null;
+        for(Centroid centroid : centroids) {
+            double currentDistance = distance.calculate(dataPoint.getFeatures(), centroid.getCoordinates());
+            //distance doesn't get negative
+            if(currentDistance > maxDistance) {
+                closestCentroid = centroid;
+            }
+        }
+        return closestCentroid;
+    }
 
     public static Map<Centroid, List<DataPoint>> fit(List<DataPoint> dataPoints,
                                                   int k,
