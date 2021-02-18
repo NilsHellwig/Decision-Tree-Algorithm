@@ -22,13 +22,12 @@ public class Main {
         logStream = new PrintStream(new FileOutputStream("decision_tree.dot"));
         logStream.println("digraph G{");
         DecisionTreeClassifier dtc = new DecisionTreeClassifier(trainingDataSetPath, targetAttribute, attributes, logStream);
-        logStream.println("}");
-        logStream.close();
         dtc.registerDiscretization("Age", 8);
 
         // Trainiere den Baum
         dtc.trainDecisionTree(targetAttribute);
-
+        logStream.println("}");
+        logStream.close();
         /*
         // Teste den Baum anhand eines Beispiels
         HashMap<String, String> example = new HashMap<String, String>()

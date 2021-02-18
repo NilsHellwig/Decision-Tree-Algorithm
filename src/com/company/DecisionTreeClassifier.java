@@ -155,10 +155,14 @@ public class DecisionTreeClassifier {
         // Gebe neue Verbindungen aus
         for (Knoten child : children) {
             System.out.println("[ <Question: " + root.getAttribute() + "> <Value of Edge: " + root.getValue() + "> <Label: " + root.getLabel() + "> ] --> [ <Question: " + child.getAttribute() + "> < Value of Edge: " + child.getValue() + "> < Label: " + child.getLabel() + "> ]");
-            if (child.getAttribute().equals("")) {
-                logStream.println(root.getAttribute() + "_" + root.nodeId + " -> prediction__" + child.getLabel() + "__" + child.nodeId + "[label=\"" + child.getValue() + "\"];");
+            if(child.getAttribute().equals("")){
+                logStream.println("\""+root.getAttribute()+"\\n"+root.nodeId+"\" -> \"Prediction: "+child.getLabel()+"\\n"+child.nodeId+"\" [label=\""+child.getValue()+"\"];");
+                logStream.println("\"Prediction: "+child.getLabel()+"\\n"+child.nodeId+"\" [shape=box, style=filled, color=red];");
+                if(child.getLabel().equals("1")){
+                    logStream.println("\"Prediction: "+child.getLabel()+"\\n"+child.nodeId+"\" [shape=box, style=filled, color=green];");
+                }
             } else {
-                logStream.println(root.getAttribute() + "_" + root.nodeId + " -> " + child.getAttribute() + "_" + child.nodeId + "[label=\"" + child.getValue() + "\"];");
+                logStream.println("\""+root.getAttribute()+"\\n"+root.nodeId+"\" -> \""+child.getAttribute()+"\\n"+child.nodeId+"\" [label=\""+child.getValue()+"\"];");
             }
         }
 
