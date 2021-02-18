@@ -36,6 +36,21 @@ public class DecisionTreeClassifier {
     }
 
     /**
+     * Creates a decision tree classifier
+     * @param trainingDataSetPath path to the training data set
+     * @param targetAttribute name of the target attribute (column name)
+     * @param attrs name of columns used for classification
+     * @param logStream for writing lines in graph .dot file
+     */
+/*    public DecisionTreeClassifier(ArrayList<HashMap<String, String>> trainingData, String targetAttribute, ArrayList<String> attrs, PrintStream logStream) {
+        dataset = trainingData;
+        attributes = attrs;
+        this.logStream = logStream;
+        discretizations = new HashMap<String, Integer>();
+        centroids = new HashMap<String, List<Centroid>>();
+    }
+*/
+    /**
      * Predict the target attribute for an observation
      * @param obeservation Hash map containing the values of an observation
      * @return prediction result
@@ -65,6 +80,14 @@ public class DecisionTreeClassifier {
             Centroid c = KMeansClustering.findClosestCentroid(centroidList, d, new EuclideanDistance());
             replaceObservationValue(observation, columnName, c.getId());
 
+        }
+
+        for(String key : observation.keySet()){
+            String value = observation.get(key);
+            if(!discretizations.keySet().contains(value) && ("".equals(value) || value == null)){
+                String mcv = mcv(key, dataset);
+                observation.put(key, mcv);
+            }
         }
     }
 
@@ -371,9 +394,6 @@ public class DecisionTreeClassifier {
         //iterate over dataset
         for(int i = 0; i<data.size(); i++) {
             HashMap<String, String> row = data.get(i);
-            if(data.get(i) == null){
-                System.out.println("ASD");
-            }
             if(row.get(columnName) == null || "".equals(row.get(columnName))){
                 //put most common value if value is missing
                 row.put(columnName, mcv);
