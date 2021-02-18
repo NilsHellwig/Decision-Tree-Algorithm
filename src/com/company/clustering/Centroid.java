@@ -7,7 +7,7 @@ import java.util.UUID;
 public class Centroid {
     public static int clusterCount = 0;
     private final Map<String, Double> coordinates;
-    private final String id;
+    private String id;
 
     public Centroid(Map<String, Double> coordinates) {
         this.coordinates = coordinates;
@@ -22,6 +22,9 @@ public class Centroid {
         return id;
     }
 
+    public void setId(String id) {
+        this.id = id;
+    }
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;

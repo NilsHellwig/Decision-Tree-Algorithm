@@ -403,7 +403,7 @@ public class DecisionTreeClassifier {
     }
 
     /**
-     * write the cluster names into the column used, write the column used into "[columnUser]_____old"
+     * write the cluster names into the column used, write the column used into "[columnUsed]_____old"
      * @param data data to be adjusted
      * @param clusters map of clusters and their data points
      * @param columnName column to be replaced
@@ -411,10 +411,20 @@ public class DecisionTreeClassifier {
     private void reassignClusteredValues(ArrayList<HashMap<String, String>> data, Map<Centroid, List<DataPoint>> clusters, String columnName) {
         centroids.put(columnName, new ArrayList<Centroid>());
         clusters.forEach((key, value) -> {
+            double clusterMinValue = Double.MAX_VALUE, clusterMaxValue = Double.MIN_VALUE;
             centroids.get(columnName).add(key);
+            //find min/max values of entries in cluster first to correctly name the cluster later
             for(DataPoint d : value) {
+                clusterMinValue = Math.min(clusterMinValue, d.getFeatures().get(columnName));
+                clusterMaxValue = Math.max(clusterMaxValue, d.getFeatures().get(columnName));
+           }
+            String clusterName = new StringBuilder().append("Cluster[").append(clusterMinValue).append("-").append(clusterMaxValue).append("]").toString();
+            key.setId(clusterName);
+
+            for(DataPoint d : value) {
+                clusterMinValue = Math.min(clusterMinValue, d.getFeatures().get(columnName));
+                clusterMaxValue = Math.max(clusterMaxValue, d.getFeatures().get(columnName));
                 int idx = Integer.parseInt(d.getIdentifier().replace("Node", ""));
-                String clusterName = key.getId();
                 replaceObservationValue(data.get(idx), columnName, clusterName);
             }
         });
