@@ -9,9 +9,10 @@ public class Main {
     public static void main(String[] args) throws FileNotFoundException {
         // Definiere Pfad der Traingsdaten
         String trainingDataSetPath = "src/dataset/train.csv";
+        String testSetDataPath = "src/dataset/validate.csv";
 
         // Definiere, welche Attribute genutzt werden sollen, um das TargetAttribute vorauszusagen
-        List<String> attributesList = Arrays.asList( "Pclass", "Sex", "SibSp","Age","Parch","Embarked", "Fare");
+        List<String> attributesList = Arrays.asList( "Pclass", "Sex", "SibSp","Age","Parch","Embarked");
         ArrayList<String> attributes = new ArrayList<>(attributesList);
 
         // Definiere, welches Attribut vorausgesagt werden soll
@@ -44,7 +45,7 @@ public class Main {
          */
 
         try {
-            ArrayList<HashMap<String, String>> preds = dtc.predictCsv(trainingDataSetPath, "Survived");
+            ArrayList<HashMap<String, String>> preds = dtc.predictCsv(testSetDataPath, "Survived");
             CsvHelper.writeFile("./predictions.csv", preds);
         }catch(Exception e){
             e.printStackTrace();
