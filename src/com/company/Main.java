@@ -17,34 +17,27 @@ public class Main {
 
         // Definiere, welches Attribut vorausgesagt werden soll
         String targetAttribute = "Survived";
-        // Test PrintStream
-        PrintStream logStream;
 
+        // Erstelle Printstream um trainierten Graphen in .dot File zu speichern
+        PrintStream logStream;
         logStream = new PrintStream(new FileOutputStream("decision_tree.dot"));
         logStream.println("digraph G{");
+
+        // Create new Classifier
         DecisionTreeClassifier dtc = new DecisionTreeClassifier(trainingDataSetPath, targetAttribute, attributes, logStream);
+
+        // Dscretize values
         dtc.registerDiscretization("Age", 8);
         dtc.registerDiscretization("Fare", 1);
         dtc.registerDiscretization("Parch", 6);
 
         // Trainiere den Baum
         dtc.trainDecisionTree(targetAttribute);
+
+        // Ende der .dot File schreiben
         logStream.println("}");
         logStream.close();
-        /*
-        // Teste den Baum anhand eines Beispiels
-        HashMap<String, String> example = new HashMap<String, String>()
-        {{
-            put("Pclass", "3");
-            put("Sex", "male");
-            put("SibSp", "1");
-            put("Age", "22");
-            put("Parch", "0");
-            put("Embarked", "S");
-        }};
 
-        System.out.println(dtc.predict(example));
-         */
 
         try {
             ArrayList<HashMap<String, String>> preds = dtc.predictCsv(trainingDataSetPath, "Survived");

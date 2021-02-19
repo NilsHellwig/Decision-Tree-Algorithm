@@ -75,24 +75,6 @@ public class Knoten {
                 }
             }
         }
-        for (String attributeKey: example.keySet()){
-            if (attribute.equals(attributeKey)){
-                for (Knoten child: children){
-                    if (child.value.equals(example.get(attributeKey))){
-                        example.remove(attributeKey);
-                        HashMap<String,String> reducedAttributes = example;
-                        if (!child.getLabel().equals("")){
-                            System.out.println(getAttribute()+" --"+child.getValue()+"--> <"+child.getLabel()+">");
-                        } else {
-                            System.out.println(getAttribute() + " ---"+child.getValue()+"--> " + child.getAttribute());
-                        }
-                        return child.predict(reducedAttributes);
-                    }
-                }
-            }
-        }
-        System.err.println("THERE WAS A NO LABEL FOUND ERROR!!!!!");
-        System.exit(0);
         return "no label found error";
     }
 
