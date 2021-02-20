@@ -41,7 +41,6 @@ public class Main {
         logStream.println("}");
         logStream.close();
 
-
         try {
             ArrayList<HashMap<String, String>> preds = dtc.predictDataset(data.get("test"), "Survived");
             CsvHelper.writeFile("./predictions.csv", preds);
