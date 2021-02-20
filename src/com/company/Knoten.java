@@ -64,13 +64,12 @@ public class Knoten {
                 for (Knoten child: children){
                     if (child.value.equals(example.get(attributeKey))){
                         example.remove(attributeKey);
-                        HashMap<String,String> reducedAttributes = example;
                         if (!child.getLabel().equals("")){
                             System.out.println(getAttribute()+" --"+child.getValue()+"--> <"+child.getLabel()+">");
                         } else {
                             System.out.println(getAttribute() + " ---"+child.getValue()+"--> " + child.getAttribute());
                         }
-                        return child.predict(reducedAttributes);
+                        return child.predict(example);
                     }
                 }
             }
