@@ -9,7 +9,10 @@ public class Main {
     public static void main(String[] args) throws FileNotFoundException {
         // Definiere Pfad der Traingsdaten
         String trainingDataSetPath = "src/dataset/train.csv";
-        String testSetDataPath = "src/dataset/validate.csv";
+
+        //Lade Trainingsdaten und split in train/test
+        ArrayList<HashMap<String, String>> fullData = CsvHelper.readFile(trainingDataSetPath);
+        HashMap<String, ArrayList<HashMap<String, String>>> data = DecisionTreeClassifier.trainTestValidateSplit(fullData, 0.2, 0);
 
         // Definiere, welche Attribute genutzt werden sollen, um das TargetAttribute vorauszusagen
         List<String> attributesList = Arrays.asList( "Pclass", "Sex", "SibSp","Age","Parch","Embarked", "Fare");
@@ -24,7 +27,7 @@ public class Main {
         logStream.println("digraph G{");
 
         // Create new Classifier
-        DecisionTreeClassifier dtc = new DecisionTreeClassifier(trainingDataSetPath, targetAttribute, attributes, logStream);
+        DecisionTreeClassifier dtc = new DecisionTreeClassifier(data.get("train"), attributes, logStream);
 
         // Dscretize values
         dtc.registerDiscretization("Age", 8);
@@ -40,7 +43,7 @@ public class Main {
 
 
         try {
-            ArrayList<HashMap<String, String>> preds = dtc.predictCsv(trainingDataSetPath, "Survived");
+            ArrayList<HashMap<String, String>> preds = dtc.predictDataset(data.get("test"), "Survived");
             CsvHelper.writeFile("./predictions.csv", preds);
         }catch(Exception e){
             e.printStackTrace();

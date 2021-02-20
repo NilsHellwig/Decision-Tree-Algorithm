@@ -23,11 +23,10 @@ public class DecisionTreeClassifier {
     /**
      * Creates a decision tree classifier
      * @param trainingDataSetPath path to the training data set
-     * @param targetAttribute name of the target attribute (column name)
      * @param attrs name of columns used for classification
      * @param logStream for writing lines in graph .dot file
      */
-    public DecisionTreeClassifier(String trainingDataSetPath, String targetAttribute, ArrayList<String> attrs, PrintStream logStream) {
+    public DecisionTreeClassifier(String trainingDataSetPath, ArrayList<String> attrs, PrintStream logStream) {
         dataset = CsvHelper.readFile(trainingDataSetPath);
         attributes = attrs;
         this.logStream = logStream;
@@ -37,19 +36,18 @@ public class DecisionTreeClassifier {
 
     /**
      * Creates a decision tree classifier
-     * @param trainingDataSetPath path to the training data set
-     * @param targetAttribute name of the target attribute (column name)
+     * @param trainingData training data set
      * @param attrs name of columns used for classification
      * @param logStream for writing lines in graph .dot file
      */
-/*    public DecisionTreeClassifier(ArrayList<HashMap<String, String>> trainingData, String targetAttribute, ArrayList<String> attrs, PrintStream logStream) {
+    public DecisionTreeClassifier(ArrayList<HashMap<String, String>> trainingData, ArrayList<String> attrs, PrintStream logStream) {
         dataset = trainingData;
         attributes = attrs;
         this.logStream = logStream;
         discretizations = new HashMap<String, Integer>();
         centroids = new HashMap<String, List<Centroid>>();
     }
-*/
+
     /**
      * Predict the target attribute for an observation
      * @param obeservation Hash map containing the values of an observation
@@ -113,6 +111,13 @@ public class DecisionTreeClassifier {
 
     }
 
+    /**
+     * train the decition tree classifier
+     * @param dataset dataset to be trained on
+     * @param targetAttribute target attribute to predict
+     * @param attributes attributes used for prediction
+     * @return
+     */
     private Knoten lerne(ArrayList<HashMap<String, String>> dataset, String targetAttribute, ArrayList<String> attributes) {
         // Schritt 2
         ArrayList<String> valuesOfTargetAttributeInDataset = new ArrayList<>();
@@ -192,6 +197,13 @@ public class DecisionTreeClassifier {
         return root;
     }
 
+    /**
+     * Filter out columns in the daaset
+     * @param dataset dataset containing the data
+     * @param attributeToSplit attribute to
+     * @param valueOfAttributeToSplit value to create subset with
+     * @return
+     */
     private ArrayList<HashMap<String, String>> createSubSetOfData(ArrayList<HashMap<String, String>> dataset, String attributeToSplit, String valueOfAttributeToSplit) {
         ArrayList<HashMap<String, String>> filteredDataset = new ArrayList<HashMap<String, String>>();
         for (HashMap<String, String> datapoint : dataset) {
@@ -201,7 +213,12 @@ public class DecisionTreeClassifier {
         }
         return filteredDataset;
     }
-
+    /**
+     * Get the most common value for an attribute
+     * @param targetAttribute the specified attribute/column
+     * @param dataset dataset to get the mcv from
+     * @return
+     */
     private String mcv(String targetAttribute, ArrayList<HashMap<String, String>> dataset) {
         return mcv(targetAttribute, dataset, false);
     }
@@ -239,6 +256,14 @@ public class DecisionTreeClassifier {
         return mostFrequentValueForAttribute;
     }
 
+    /**
+     * finds the attribute with the highest information gain in the dataset
+     * @param dataset dataset containing the data
+     * @param targetAttribute target attribute
+     * @param attributes attributes to be used
+     * @param possibleValuesForAttributes possible values for attributes
+     * @return
+     */
     private String getAttributeWithHighestInformationGain(ArrayList<HashMap<String,String>> dataset, String targetAttribute, ArrayList<String> attributes, HashMap<String,ArrayList<String>> possibleValuesForAttributes){
         String bestAttribute = "";
         HashMap<String,Double> informationGains = new HashMap<String,Double>();
@@ -277,26 +302,38 @@ public class DecisionTreeClassifier {
         return bestAttribute;
     }
 
+    /**
+     * Calculates the entropy of the selected features
+     * @param dataset dataset containing the data
+     * @param targetAttribute target attribute
+     * @param possibleValuesForTargetAttribute possible values for target attribute
+     * @return
+     */
     private double getEntropy(ArrayList<HashMap<String,String>> dataset, String targetAttribute, ArrayList<String> possibleValuesForTargetAttribute){
         double entropy = 0.0;
         for (String attributeValue : possibleValuesForTargetAttribute){
-            double countOccuranceOfValueForZielLabel = 0.0;
+            double countOccuranceOfValueForTargetLabel = 0.0;
             for (HashMap<String,String> datapoint: dataset){
                 if (datapoint.get(targetAttribute).equals(attributeValue)){
-                    countOccuranceOfValueForZielLabel += 1;
+                    countOccuranceOfValueForTargetLabel += 1;
                 }
             }
             double partOfEntropy;
-            if (countOccuranceOfValueForZielLabel == 0.0){
+            if (countOccuranceOfValueForTargetLabel == 0.0){
                 partOfEntropy = 0;
             } else {
-                partOfEntropy = -(countOccuranceOfValueForZielLabel/dataset.size())*log2(countOccuranceOfValueForZielLabel/dataset.size());
+                partOfEntropy = -(countOccuranceOfValueForTargetLabel/dataset.size())*log2(countOccuranceOfValueForTargetLabel/dataset.size());
             }
             entropy+= partOfEntropy;
         }
         return entropy;
     }
 
+    /**
+     * Calculate the dual logarithm of a number
+     * @param N number to be logarithmized
+     * @return
+     */
     private double log2(double N){
         return Math.log(N) / Math.log(2.0);
     }
@@ -336,15 +373,24 @@ public class DecisionTreeClassifier {
      * @throws Exception if classifier is not trained
      */
     public ArrayList<HashMap<String, String>> predictCsv(String filePath, String targetAttribute) throws Exception {
+        ArrayList<HashMap<String,String>> toPredict = CsvHelper.readFile(filePath);
+        return predictDataset(toPredict, targetAttribute);
+    }
+
+     /** predict and evaluate a csv file
+     * @param toPredict data containing the observations
+     * @param targetAttribute target attribute used for evaluation
+     * @return
+             * @throws Exception if classifier is not trained
+     */
+    public ArrayList<HashMap<String, String>> predictDataset(ArrayList<HashMap<String, String>> toPredict, String targetAttribute) throws Exception {
         if(root == null) {
             throw new Exception("Classifier is not trained yet");
         }
         boolean eval = targetAttribute != null;
+        //true positive and false positive counts
         double tp = 0;
         double fp = 0;
-
-        ArrayList<HashMap<String,String>> toPredict = CsvHelper.readFile(filePath);
-
 
         for(HashMap<String, String> map : toPredict) {
             HashMap<String, String> observation = new HashMap<String, String>();
@@ -493,6 +539,13 @@ public class DecisionTreeClassifier {
         discretizations.put(column, k);
     }
 
+    /**
+     * Do a simple train/test/validate split on a  dataset
+     * @param dataset Dataset to be split
+     * @param testSize Size of the test set in percent
+     * @param validateSize Size of the validation dataset in percent
+     * @return Dictionary containing the sets with the keys "train", "test" and "validate"
+     */
     public static HashMap<String, ArrayList<HashMap<String, String>>> trainTestValidateSplit(ArrayList<HashMap<String, String>> dataset, double testSize, double validateSize) {
         HashMap<String, ArrayList<HashMap<String, String>>> splits = new HashMap<String, ArrayList<HashMap<String, String>>>();
 
