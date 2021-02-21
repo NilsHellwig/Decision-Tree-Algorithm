@@ -7,7 +7,26 @@ import java.io.FileOutputStream;
 public class Main {
 
     public static void main(String[] args) throws FileNotFoundException {
+        evaluate();
+        predict();
+    }
+
+    public static void predict() throws FileNotFoundException {
+        String testDataSetPath = "src/dataset/test.csv";
+        DecisionTreeClassifier dtc = evaluate();
+
+        try {
+            ArrayList<HashMap<String, String>> preds = dtc.predictCsv(testDataSetPath, "Survived");
+            CsvHelper.writeFile("./predictions_test.csv", preds);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+    }
+
+    public static DecisionTreeClassifier evaluate() throws FileNotFoundException {
         double averageAccuracy = 0;
+        DecisionTreeClassifier dtc = null;
         for(int i = 0; i<5; i++) {
             // Definiere Pfad der Traingsdaten
             String trainingDataSetPath = "src/dataset/train.csv";
@@ -29,7 +48,7 @@ public class Main {
             logStream.println("digraph G{");
 
             // Create new Classifier
-            DecisionTreeClassifier dtc = new DecisionTreeClassifier(data.get("train"), attributes, logStream);
+            dtc = new DecisionTreeClassifier(data.get("train"), attributes, logStream);
 
             // Discretize values
             dtc.registerDiscretization("Age", 8);
@@ -53,5 +72,8 @@ public class Main {
         }
         averageAccuracy /= 5;
         System.out.println(new StringBuilder().append("average accuracy over 5 iterations: ").append(averageAccuracy));
+
+        return dtc;
     }
+
 }
