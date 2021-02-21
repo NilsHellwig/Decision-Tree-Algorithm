@@ -25,26 +25,24 @@ public class DecisionTreeClassifier {
      * Creates a decision tree classifier
      * @param trainingDataSetPath path to the training data set
      * @param attrs name of columns used for classification
-     * @param logStream for writing lines in graph .dot file
      */
-    public DecisionTreeClassifier(String trainingDataSetPath, ArrayList<String> attrs, PrintStream logStream) {
+    public DecisionTreeClassifier(String trainingDataSetPath, ArrayList<String> attrs) {
         dataset = CsvHelper.readFile(trainingDataSetPath);
         attributes = attrs;
-        this.logStream = logStream;
+        this.logStream = null;
         discretizations = new HashMap<String, Integer>();
         centroids = new HashMap<String, List<Centroid>>();
     }
+
 
     /**
      * Creates a decision tree classifier
      * @param trainingData training data set
      * @param attrs name of columns used for classification
-     * @param logStream for writing lines in graph .dot file
      */
-    public DecisionTreeClassifier(ArrayList<HashMap<String, String>> trainingData, ArrayList<String> attrs, PrintStream logStream) {
+    public DecisionTreeClassifier(ArrayList<HashMap<String, String>> trainingData, ArrayList<String> attrs) {
         dataset = trainingData;
         attributes = attrs;
-        this.logStream = logStream;
         discretizations = new HashMap<String, Integer>();
         centroids = new HashMap<String, List<Centroid>>();
     }
@@ -195,15 +193,17 @@ public class DecisionTreeClassifier {
         // Gebe neue Verbindungen aus
         for (Knoten child : children) {
             System.out.println("[ <Question: " + root.getAttribute() + "> <Value of Edge: " + root.getValue() + "> <Label: " + root.getLabel() + "> ] --> [ <Question: " + child.getAttribute() + "> < Value of Edge: " + child.getValue() + "> < Label: " + child.getLabel() + "> ]");
-            if(child.getLabel().length() > 0){
-                logStream.println("\""+root.getAttribute()+"\\n"+root.nodeId+"\" -> \"Prediction: "+child.getLabel()+"\\n"+child.nodeId+"\" [label=\""+child.getValue()+"\"];");
-                if(child.getLabel().equals("1")){
-                    logStream.println("\"Prediction: "+child.getLabel()+"\\n"+child.nodeId+"\" [shape=box, style=filled, color=green];");
+            if(logStream != null) {
+                if (child.getLabel().length() > 0) {
+                    logStream.println("\"" + root.getAttribute() + "\\n" + root.nodeId + "\" -> \"Prediction: " + child.getLabel() + "\\n" + child.nodeId + "\" [label=\"" + child.getValue() + "\"];");
+                    if (child.getLabel().equals("1")) {
+                        logStream.println("\"Prediction: " + child.getLabel() + "\\n" + child.nodeId + "\" [shape=box, style=filled, color=green];");
+                    } else {
+                        logStream.println("\"Prediction: " + child.getLabel() + "\\n" + child.nodeId + "\" [shape=box, style=filled, color=red];");
+                    }
                 } else {
-                    logStream.println("\"Prediction: "+child.getLabel()+"\\n"+child.nodeId+"\" [shape=box, style=filled, color=red];");
+                    logStream.println("\"" + root.getAttribute() + "\\n" + root.nodeId + "\" -> \"" + child.getAttribute() + "\\n" + child.nodeId + "\" [label=\"" + child.getValue() + "\"];");
                 }
-            } else {
-                logStream.println("\""+root.getAttribute()+"\\n"+root.nodeId+"\" -> \""+child.getAttribute()+"\\n"+child.nodeId+"\" [label=\""+child.getValue()+"\"];");
             }
         }
 
@@ -602,5 +602,9 @@ public class DecisionTreeClassifier {
 
     public double getLastPredictionPrecision() {
         return lastPredictedPrecision;
+    }
+
+    public void setLogStream(PrintStream logStream) {
+        this.logStream = logStream;
     }
 }

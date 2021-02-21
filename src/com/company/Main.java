@@ -19,6 +19,7 @@ public class Main {
             logStream = new PrintStream(new FileOutputStream("decision_tree.dot"));
             logStream.println("digraph G{");
 
+            dtc.setLogStream(logStream);
             ArrayList<HashMap<String, String>> preds = dtc.predictCsv(testDataSetPath, "Survived");
 
             // Ende der .dot File schreiben
@@ -51,7 +52,7 @@ public class Main {
             String targetAttribute = "Survived";
 
             // Create new Classifier
-            dtc = new DecisionTreeClassifier(data.get("train"), attributes, logStream);
+            dtc = new DecisionTreeClassifier(data.get("train"), attributes);
 
             // Discretize values
             dtc.registerDiscretization("Age", 8);
