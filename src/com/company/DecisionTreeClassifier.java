@@ -19,6 +19,7 @@ public class DecisionTreeClassifier {
     private ArrayList<String> attributes;
     private HashMap<String, List<Centroid>> centroids;
     public PrintStream logStream;
+    private double lastPredictedPrecision = 0;
 
     /**
      * Creates a decision tree classifier
@@ -442,9 +443,7 @@ public class DecisionTreeClassifier {
         //calculate the precision
         if(eval) {
             double precision = tp/(tp+fp);
-            if(precision<0.5) {
-                System.err.println("BREAKPOINT");
-            }
+            lastPredictedPrecision = precision;
             System.out.println(new StringBuilder().append("Precision: ").append(precision).append(" / True Positive: ").append(tp).append(" / False Positive: ").append(fp));
         }
 
@@ -599,5 +598,9 @@ public class DecisionTreeClassifier {
         System.out.println(new StringBuilder().append("Train: ").append(splits.get("train").size()).append(" Test:").append(splits.get("test").size()).append(" Validate:").append(splits.get("validate").size()).toString());
 
         return splits;
+    }
+
+    public double getLastPredictionPrecision() {
+        return lastPredictedPrecision;
     }
 }

@@ -9,6 +9,7 @@ import static java.util.stream.Collectors.toSet;
 //example for k-means-clustering taken from here https://www.baeldung.com/java-k-means-clustering-algorithm
 //basically record has only been refactored into DataPoint
 //this also supports more than one dimension
+//also added a couple of functions for compatibility with the classifier
 public class KMeansClustering {
 
     private static final Random random = new Random();
