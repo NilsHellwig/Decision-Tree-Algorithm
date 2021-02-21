@@ -141,7 +141,14 @@ public class DecisionTreeClassifier {
         }
 
         // Schritt 4
-        String bestAttribute = getAttributeWithHighestInformationGain(dataset, targetAttribute, attributes, possibleValuesForAttributes);
+        String bestAttribute = "";
+        try{
+             bestAttribute = getAttributeWithHighestInformationGain(dataset, targetAttribute, attributes, possibleValuesForAttributes);
+        }catch (Exception e){
+            System.err.println(e.getMessage());
+            System.err.println("Please execute the program again.");
+            System.exit(-1);
+        }
 
         // Schritt 5
         Knoten root = new Knoten();
@@ -267,9 +274,10 @@ public class DecisionTreeClassifier {
      * @param targetAttribute target attribute
      * @param attributes attributes to be used
      * @param possibleValuesForAttributes possible values for attributes
+     * @throws Exception if an issue with the java floating point operations occurs during the calculations
      * @return
      */
-    private String getAttributeWithHighestInformationGain(ArrayList<HashMap<String,String>> dataset, String targetAttribute, ArrayList<String> attributes, HashMap<String,ArrayList<String>> possibleValuesForAttributes){
+    private String getAttributeWithHighestInformationGain(ArrayList<HashMap<String,String>> dataset, String targetAttribute, ArrayList<String> attributes, HashMap<String,ArrayList<String>> possibleValuesForAttributes) throws Exception {
         String bestAttribute = "";
         HashMap<String,Double> informationGains = new HashMap<String,Double>();
         ArrayList<String> possibleValuesForTargetAttribute = possibleValuesForAttributes.get(targetAttribute);
@@ -295,6 +303,10 @@ public class DecisionTreeClassifier {
                 sum+=ev_e;
             }
             double informationGain = entropy_e-sum;
+            if(informationGain < 0){
+                String msg = new StringBuilder().append("Best attribute couldn't be determined properly due to java floating point issue. InformationGain").append(informationGain).toString();
+                throw new Exception(msg);
+            }
             informationGains.put(attribute, informationGain);
         }
         double lowest_information_gain = 0;
