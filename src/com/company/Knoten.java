@@ -55,8 +55,7 @@ public class Knoten {
         this.children = children;
     }
 
-    public String predict(HashMap<String, String> observation){
-        HashMap<String, String> example = (HashMap<String, String>) observation.clone();
+    public String predict(HashMap<String, String> example){
         if (!label.equals("")){
             return label;
         }
@@ -64,7 +63,6 @@ public class Knoten {
             if (attribute.equals(attributeKey)){
                 for (Knoten child: children){
                     if (child.value.equals(example.get(attributeKey))){
-                        example.remove(attributeKey);
                         if (!child.getLabel().equals("")){
                             System.out.println(getAttribute()+" --"+child.getValue()+"--> <"+child.getLabel()+">");
                         } else {
