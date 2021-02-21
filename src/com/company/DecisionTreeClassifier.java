@@ -29,7 +29,6 @@ public class DecisionTreeClassifier {
     public DecisionTreeClassifier(String trainingDataSetPath, ArrayList<String> attrs) {
         dataset = CsvHelper.readFile(trainingDataSetPath);
         attributes = attrs;
-        this.logStream = null;
         discretizations = new HashMap<String, Integer>();
         centroids = new HashMap<String, List<Centroid>>();
     }
