@@ -14,17 +14,9 @@ public class Main {
     public static void predict(DecisionTreeClassifier dtc) throws FileNotFoundException {
         String testDataSetPath = "src/dataset/test.csv";
         try {
-            // Erstelle Printstream um trainierten Graphen in .dot File zu speichern
-            PrintStream logStream;
-            logStream = new PrintStream(new FileOutputStream("decision_tree.dot"));
-            logStream.println("digraph G{");
 
-            dtc.setLogStream(logStream);
             ArrayList<HashMap<String, String>> preds = dtc.predictCsv(testDataSetPath, "Survived");
 
-            // Ende der .dot File schreiben
-            logStream.println("}");
-            logStream.close();
 
 
             //write prediction_test.csv in format acceptable for kaggle
@@ -66,6 +58,12 @@ public class Main {
             // Create new Classifier
             dtc = new DecisionTreeClassifier(data.get("train"), attributes);
 
+            // Erstelle Printstream um trainierten Graphen in .dot File zu speichern
+            PrintStream logStream;
+            logStream = new PrintStream(new FileOutputStream("decision_tree.dot"));
+            logStream.println("digraph G{");
+            dtc.setLogStream(logStream);
+
             // Discretize values
             dtc.registerDiscretization("Age", 8);
             dtc.registerDiscretization("Fare", 1);
@@ -73,6 +71,10 @@ public class Main {
 
             // Trainiere den Baum
             dtc.trainDecisionTree(targetAttribute);
+
+            // Ende der .dot File schreiben
+            logStream.println("}");
+            logStream.close();
 
             try {
                 ArrayList<HashMap<String, String>> preds = dtc.predictDataset(data.get("test"), "Survived");
