@@ -150,6 +150,9 @@ public class DecisionTreeClassifier {
         // Schritt 6
         ArrayList<Knoten> children = new ArrayList<Knoten>();
         ArrayList<String> possibleValues = possibleValuesForAttributes.get(bestAttribute);
+        if(possibleValues == null){
+            System.err.println("BREAKPOINT");
+        }
         for (String possibleValue : possibleValues) {
 
             // Schritt 7
