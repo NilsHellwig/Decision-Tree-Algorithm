@@ -21,12 +21,13 @@ public class KMeansClustering {
      * @return the centroid that is closes to the datapoint
      */
     public static Centroid findClosestCentroid(List<Centroid> centroids, DataPoint dataPoint,  EuclideanDistance distance) {
-        double maxDistance = -1;
+        double minDistance = Double.MAX_VALUE;
         Centroid closestCentroid = null;
         for(Centroid centroid : centroids) {
-            double currentDistance = distance.calculate(dataPoint.getFeatures(), centroid.getCoordinates());
+            double currentDistance = Math.abs(distance.calculate(dataPoint.getFeatures(), centroid.getCoordinates()));
             //distance doesn't get negative
-            if(currentDistance > maxDistance) {
+            if(currentDistance < minDistance) {
+                minDistance = currentDistance;
                 closestCentroid = centroid;
             }
         }

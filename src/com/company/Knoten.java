@@ -55,7 +55,8 @@ public class Knoten {
         this.children = children;
     }
 
-    public String predict(HashMap<String, String> example){
+    public String predict(HashMap<String, String> observation){
+        HashMap<String, String> example = (HashMap<String, String>) observation.clone();
         if (!label.equals("")){
             return label;
         }

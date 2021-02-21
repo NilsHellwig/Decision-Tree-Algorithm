@@ -15,7 +15,7 @@ public class Main {
         HashMap<String, ArrayList<HashMap<String, String>>> data = DecisionTreeClassifier.trainTestValidateSplit(fullData, 0.2, 0);
 
         // Definiere, welche Attribute genutzt werden sollen, um das TargetAttribute vorauszusagen
-        List<String> attributesList = Arrays.asList( "Pclass", "Sex", "SibSp","Age","Parch","Embarked", "Fare");
+        List<String> attributesList = Arrays.asList("Pclass", "Sex", "SibSp", "Age", "Parch", "Embarked", "Fare");
         ArrayList<String> attributes = new ArrayList<>(attributesList);
 
         // Definiere, welches Attribut vorausgesagt werden soll
@@ -44,9 +44,8 @@ public class Main {
         try {
             ArrayList<HashMap<String, String>> preds = dtc.predictDataset(data.get("test"), "Survived");
             CsvHelper.writeFile("./predictions.csv", preds);
-        }catch(Exception e){
+        } catch (Exception e) {
             e.printStackTrace();
         }
     }
-
 }

@@ -149,7 +149,8 @@ public class DecisionTreeClassifier {
 
         // Schritt 6
         ArrayList<Knoten> children = new ArrayList<Knoten>();
-        for (String possibleValue : possibleValuesForAttributes.get(bestAttribute)) {
+        ArrayList<String> possibleValues = possibleValuesForAttributes.get(bestAttribute);
+        for (String possibleValue : possibleValues) {
 
             // Schritt 7
             Knoten rootChild;
@@ -400,6 +401,15 @@ public class DecisionTreeClassifier {
             try{
                 String prediction = predict(observation);
                 map.put("prediction", prediction);
+                for(String s : observation.keySet()) {
+                    if(s.endsWith("_____old")){
+                        //put the clustered values into the output file as well
+                        String originalValue = observation.get(s.replace("_____old", ""));
+                        String clusteredValue = observation.get(s);
+                        map.put(s.replace("_____old", ""), originalValue);
+                        map.put(s, clusteredValue);
+                    }
+                }
                 if(eval) {
                     if(map.get("prediction").equals(map.get(targetAttribute))) {
                         tp++;
@@ -416,6 +426,9 @@ public class DecisionTreeClassifier {
         //calculate the precision
         if(eval) {
             double precision = tp/(tp+fp);
+            if(precision<0.5) {
+                System.err.println("BREAKPOINT");
+            }
             System.out.println(new StringBuilder().append("Precision: ").append(precision).append(" / True Positive: ").append(tp).append(" / False Positive: ").append(fp));
         }
 
