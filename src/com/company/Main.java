@@ -15,9 +15,7 @@ public class Main {
         String testDataSetPath = "src/dataset/test.csv";
         try {
 
-            ArrayList<HashMap<String, String>> preds = dtc.predictCsv(testDataSetPath, "Survived");
-
-
+            ArrayList<HashMap<String, String>> preds = dtc.predictCsv(testDataSetPath);
 
             //write prediction_test.csv in format acceptable for kaggle
             ArrayList<HashMap<String, String>> outMaps = new ArrayList<HashMap<String, String>>();
