@@ -7,13 +7,12 @@ import java.io.FileOutputStream;
 public class Main {
 
     public static void main(String[] args) throws FileNotFoundException {
-        evaluate();
-        predict();
+        DecisionTreeClassifier dtc = evaluate();
+        predict(dtc);
     }
 
-    public static void predict() throws FileNotFoundException {
+    public static void predict(DecisionTreeClassifier dtc) throws FileNotFoundException {
         String testDataSetPath = "src/dataset/test.csv";
-        DecisionTreeClassifier dtc = evaluate();
 
         try {
             ArrayList<HashMap<String, String>> preds = dtc.predictCsv(testDataSetPath, "Survived");
