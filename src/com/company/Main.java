@@ -29,7 +29,7 @@ public class Main {
         // Create new Classifier
         DecisionTreeClassifier dtc = new DecisionTreeClassifier(data.get("train"), attributes, logStream);
 
-        // Dscretize values
+        // Discretize values
         dtc.registerDiscretization("Age", 8);
         dtc.registerDiscretization("Fare", 1);
         dtc.registerDiscretization("Parch", 6);
