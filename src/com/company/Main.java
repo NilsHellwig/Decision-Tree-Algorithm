@@ -13,9 +13,18 @@ public class Main {
 
     public static void predict(DecisionTreeClassifier dtc) throws FileNotFoundException {
         String testDataSetPath = "src/dataset/test.csv";
-
         try {
+            // Erstelle Printstream um trainierten Graphen in .dot File zu speichern
+            PrintStream logStream;
+            logStream = new PrintStream(new FileOutputStream("decision_tree.dot"));
+            logStream.println("digraph G{");
+
             ArrayList<HashMap<String, String>> preds = dtc.predictCsv(testDataSetPath, "Survived");
+
+            // Ende der .dot File schreiben
+            logStream.println("}");
+            logStream.close();
+
             CsvHelper.writeFile("./predictions_test.csv", preds);
         } catch (Exception e) {
             e.printStackTrace();
@@ -41,11 +50,6 @@ public class Main {
             // Definiere, welches Attribut vorausgesagt werden soll
             String targetAttribute = "Survived";
 
-            // Erstelle Printstream um trainierten Graphen in .dot File zu speichern
-            PrintStream logStream;
-            logStream = new PrintStream(new FileOutputStream("decision_tree.dot"));
-            logStream.println("digraph G{");
-
             // Create new Classifier
             dtc = new DecisionTreeClassifier(data.get("train"), attributes, logStream);
 
@@ -56,10 +60,6 @@ public class Main {
 
             // Trainiere den Baum
             dtc.trainDecisionTree(targetAttribute);
-
-            // Ende der .dot File schreiben
-            logStream.println("}");
-            logStream.close();
 
             try {
                 ArrayList<HashMap<String, String>> preds = dtc.predictDataset(data.get("test"), "Survived");
