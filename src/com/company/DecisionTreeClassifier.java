@@ -114,7 +114,7 @@ public class DecisionTreeClassifier {
      * @param dataset dataset to be trained on
      * @param targetAttribute target attribute to predict
      * @param attributes attributes used for prediction
-     * @return
+     * @return Root of the tree
      */
     private Knoten lerne(ArrayList<HashMap<String, String>> dataset, String targetAttribute, ArrayList<String> attributes) {
         // Schritt 2
@@ -155,9 +155,6 @@ public class DecisionTreeClassifier {
         // Schritt 6
         ArrayList<Knoten> children = new ArrayList<Knoten>();
         ArrayList<String> possibleValues = possibleValuesForAttributes.get(bestAttribute);
-        if(possibleValues == null){
-            System.err.println("BREAKPOINT");
-        }
         for (String possibleValue : possibleValues) {
 
             // Schritt 7
@@ -176,7 +173,7 @@ public class DecisionTreeClassifier {
             } else {
                 ArrayList<String> attributesWithoutBestAttribute = new ArrayList<>();
                 for (String att : attributes) {
-                    if (att != bestAttribute) {
+                    if (!att.equals(bestAttribute)) {
                         attributesWithoutBestAttribute.add(att);
                     }
                 }
@@ -205,7 +202,6 @@ public class DecisionTreeClassifier {
                 }
             }
         }
-
         return root;
     }
 
@@ -214,7 +210,7 @@ public class DecisionTreeClassifier {
      * @param dataset dataset containing the data
      * @param attributeToSplit attribute to
      * @param valueOfAttributeToSplit value to create subset with
-     * @return
+     * @return filtered dataset
      */
     private ArrayList<HashMap<String, String>> createSubSetOfData(ArrayList<HashMap<String, String>> dataset, String attributeToSplit, String valueOfAttributeToSplit) {
         ArrayList<HashMap<String, String>> filteredDataset = new ArrayList<HashMap<String, String>>();
@@ -229,7 +225,7 @@ public class DecisionTreeClassifier {
      * Get the most common value for an attribute
      * @param targetAttribute the specified attribute/column
      * @param dataset dataset to get the mcv from
-     * @return
+     * @return the most common value
      */
     private String mcv(String targetAttribute, ArrayList<HashMap<String, String>> dataset) {
         return mcv(targetAttribute, dataset, false);
@@ -240,7 +236,7 @@ public class DecisionTreeClassifier {
      * @param targetAttribute the specified attribute/column
      * @param dataset dataset to get the mcv from
      * @param ignoreEmptyOrNull false if empty/null values should be treated as actual value, true else
-     * @return
+     * @return the most common value
      */
     private String mcv(String targetAttribute, ArrayList<HashMap<String,String>> dataset, boolean ignoreEmptyOrNull){
         HashMap<String,Integer> valueCounter = new HashMap<String,Integer>();
@@ -275,7 +271,7 @@ public class DecisionTreeClassifier {
      * @param attributes attributes to be used
      * @param possibleValuesForAttributes possible values for attributes
      * @throws Exception if an issue with the java floating point operations occurs during the calculations
-     * @return
+     * @return attribute with highest information gain
      */
     private String getAttributeWithHighestInformationGain(ArrayList<HashMap<String,String>> dataset, String targetAttribute, ArrayList<String> attributes, HashMap<String,ArrayList<String>> possibleValuesForAttributes) throws Exception {
         String bestAttribute = "";
@@ -324,7 +320,7 @@ public class DecisionTreeClassifier {
      * @param dataset dataset containing the data
      * @param targetAttribute target attribute
      * @param possibleValuesForTargetAttribute possible values for target attribute
-     * @return
+     * @return entropy of selected features
      */
     private double getEntropy(ArrayList<HashMap<String,String>> dataset, String targetAttribute, ArrayList<String> possibleValuesForTargetAttribute){
         double entropy = 0.0;
@@ -349,7 +345,7 @@ public class DecisionTreeClassifier {
     /**
      * Calculate the dual logarithm of a number
      * @param N number to be logarithmized
-     * @return
+     * @return logarithmus dualis
      */
     private double log2(double N){
         return Math.log(N) / Math.log(2.0);
@@ -375,7 +371,7 @@ public class DecisionTreeClassifier {
     /**
      * predict based on a csv file
      * @param filePath path to the specified file
-     * @return
+     * @return list of predictions
      * @throws Exception if classifier is not trained
      */
     public ArrayList<HashMap<String, String>> predictCsv(String filePath) throws Exception {
@@ -386,7 +382,7 @@ public class DecisionTreeClassifier {
      * predict and evaluate a csv file
      * @param filePath path to specified file
      * @param targetAttribute target attribute used for evaluation
-     * @return
+     * @return list of predictions
      * @throws Exception if classifier is not trained
      */
     public ArrayList<HashMap<String, String>> predictCsv(String filePath, String targetAttribute) throws Exception {
@@ -397,8 +393,8 @@ public class DecisionTreeClassifier {
      /** predict and evaluate a csv file
      * @param toPredict data containing the observations
      * @param targetAttribute target attribute used for evaluation
-     * @return
-             * @throws Exception if classifier is not trained
+     * @return list of predictions
+     * @throws Exception if classifier is not trained
      */
     public ArrayList<HashMap<String, String>> predictDataset(ArrayList<HashMap<String, String>> toPredict, String targetAttribute) throws Exception {
         if(root == null) {
@@ -535,7 +531,7 @@ public class DecisionTreeClassifier {
      * @param data observation
      * @param feature feature of the observation to be used
      * @param identifyingFeature a data point needs an identifying feature, so we can associate it back with the original entry
-     * @return
+     * @return data point
      */
     private static DataPoint EntryToDataPoint(HashMap<String, String> data, String feature, String identifyingFeature) {
         Map<String, Double> coords = new HashMap<String, Double>();
@@ -599,9 +595,18 @@ public class DecisionTreeClassifier {
         return splits;
     }
 
+    /**
+     * Get the precision of the last set prediction
+     * @return precision
+     */
     public double getLastPredictionPrecision() {
         return lastPredictedPrecision;
     }
+
+    /**
+     * set the log stream
+     * @param logStream log stream to use for output
+     */
 
     public void setLogStream(PrintStream logStream) {
         this.logStream = logStream;
