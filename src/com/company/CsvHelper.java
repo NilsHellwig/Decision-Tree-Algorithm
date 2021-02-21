@@ -59,6 +59,7 @@ public class CsvHelper {
         for (String s : data.get(0).keySet()) {
             sb.append(s).append(delimiter);
         }
+        sb.setLength(Math.max(sb.length() - 1, 0));
         sb.append(newline);
 
         int count = 0;
@@ -69,6 +70,7 @@ public class CsvHelper {
                 for (String s : row.keySet()) {
                     sb.append(row.get(s)).append(delimiter);
                 }
+                sb.setLength(Math.max(sb.length() - 1, 0));
                 sb.append(newline);
                 if (count % batchSize == 0) {
                     br.write(sb.toString());

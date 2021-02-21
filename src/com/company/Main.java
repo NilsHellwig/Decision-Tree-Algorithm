@@ -26,7 +26,19 @@ public class Main {
             logStream.println("}");
             logStream.close();
 
-            CsvHelper.writeFile("./predictions_test.csv", preds);
+
+            //write prediction_test.csv in format acceptable for kaggle
+            ArrayList<HashMap<String, String>> outMaps = new ArrayList<HashMap<String, String>>();
+            for(int i = 0; i<preds.size(); i++) {
+                HashMap<String, String> outMap = new HashMap<String, String>();
+                HashMap<String, String> pred = preds.get(i);
+                outMap.put("PassengerId", pred.get("PassengerId"));
+                outMap.put("Survived", pred.get("prediction"));
+                outMaps.add(outMap);
+            }
+
+
+            CsvHelper.writeFile("./predictions_test.csv", outMaps, ',');
         } catch (Exception e) {
             e.printStackTrace();
         }
