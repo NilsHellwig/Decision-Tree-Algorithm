@@ -101,7 +101,7 @@ public class DecisionTreeClassifier {
          Anhand der Trainingsdaten wird dies ermittelt. */
         getPossibleValuesForAttributes(dataset);
 
-        // Prüfe, ob Laden der CSV-Datei funktioniert hat, durch ausgeben der ersten Zeile mit Daten
+        // Prüfe, ob Laden der CSV-Datei funktioniert hat, durch Ausgeben der ersten Zeile mit Daten
         System.out.println("<log> check dataset: " + dataset.get(0));
 
         // Erstelle den Startknoten
