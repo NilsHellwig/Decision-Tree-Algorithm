@@ -6,10 +6,9 @@ import java.io.FileOutputStream;
 
 public class Main {
 
-    public static void main(String[] args) throws FileNotFoundException {
-        // Definiere Pfad der Traingsdaten
-        String trainingDataSetPath = "src/dataset/train.csv";
+    public static String trainingDataSetPath = "src/dataset/train.csv";
 
+    public static void main(String[] args) throws FileNotFoundException {
         // Lade Trainingsdaten und split in train/test
         ArrayList<HashMap<String, String>> fullData = CsvHelper.readFile(trainingDataSetPath);
         HashMap<String, ArrayList<HashMap<String, String>>> data = DecisionTreeClassifier.trainTestValidateSplit(fullData, 0.0,0);
@@ -26,11 +25,9 @@ public class Main {
     }
 
     public static void evaluateClassifierTrainedOnAllTrainingExamples(DecisionTreeClassifier dtc) throws FileNotFoundException {
-        String testDataSetPath = "src/dataset/test.csv";
         try {
-
-            ArrayList<HashMap<String, String>> preds = dtc.predictCsv(testDataSetPath);
-
+            ArrayList<HashMap<String, String>> preds = dtc.predictCsv(trainingDataSetPath);
+            
             // write prediction_test.csv in format acceptable for kaggle
             ArrayList<HashMap<String, String>> outMaps = new ArrayList<HashMap<String, String>>();
             for(int i = 0; i<preds.size(); i++) {
@@ -74,7 +71,6 @@ public class Main {
     }
 
     public static DecisionTreeClassifier getClassifier(HashMap<String, ArrayList<HashMap<String, String>>> data) throws FileNotFoundException {
-
         // Definiere, welche Attribute genutzt werden sollen, um das TargetAttribute vorauszusagen
         List<String> attributesList = Arrays.asList("Pclass", "Sex", "SibSp", "Age", "Parch", "Embarked", "Fare");
         ArrayList<String> attributes = new ArrayList<>(attributesList);
