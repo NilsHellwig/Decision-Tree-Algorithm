@@ -4,9 +4,11 @@ import java.util.*;
 import java.io.PrintStream;
 import java.io.FileOutputStream;
 
+
 public class Main {
 
     public static String trainingDataSetPath = "src/dataset/train.csv";
+    public static String testDataSetPath = "src/dataset/train.csv";
 
     public static void main(String[] args) throws FileNotFoundException {
         // Lade Trainingsdaten und split in train/test
@@ -26,7 +28,7 @@ public class Main {
 
     public static void evaluateClassifierTrainedOnAllTrainingExamples(DecisionTreeClassifier dtc) throws FileNotFoundException {
         try {
-            ArrayList<HashMap<String, String>> preds = dtc.predictCsv(trainingDataSetPath);
+            ArrayList<HashMap<String, String>> preds = dtc.predictCsv(testDataSetPath);
             
             // write prediction_test.csv in format acceptable for kaggle
             ArrayList<HashMap<String, String>> outMaps = new ArrayList<HashMap<String, String>>();
