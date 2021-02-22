@@ -8,7 +8,7 @@ import java.io.FileOutputStream;
 public class Main {
 
     public static String trainingDataSetPath = "src/dataset/train.csv";
-    public static String testDataSetPath = "src/dataset/train.csv";
+    public static String testDataSetPath = "src/dataset/test.csv";
 
     public static void main(String[] args) throws FileNotFoundException {
         // Lade Trainingsdaten und split in train/test
