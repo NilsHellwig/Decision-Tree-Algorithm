@@ -18,7 +18,7 @@ public class Main {
         // Trainiere Classifier mit allen Trainingsdaten
         DecisionTreeClassifier dtc = getClassifier(data);
 
-        // Erstelle valide Datei, die bei Kaggle hochgeladen werden kann, um Accuracy zu bestimmen
+        // Erstelle valide Datei, die bei Kaggle hochgeladen werden kann, um Precision zu bestimmen
         evaluateClassifierTrainedOnAllTrainingExamples(dtc);
 
         /* Evaluiere Training, wobei aus test.csv zufällig 80% Training 20% Test Dokumente gewählt werden
