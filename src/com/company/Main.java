@@ -48,7 +48,7 @@ public class Main {
     }
 
     public static void evaluate() throws FileNotFoundException {
-        double averageAccuracy = 0;
+        double averagePrecision = 0;
         for(int i = 0; i<5; i++) {
             // Definiere Pfad der Traingsdaten
             String trainingDataSetPath = "src/dataset/train.csv";
@@ -62,14 +62,14 @@ public class Main {
 
             try {
                 ArrayList<HashMap<String, String>> preds = decisionTreeClassifier.predictDataset(data.get("test"), "Survived");
-                averageAccuracy += decisionTreeClassifier.getLastPredictionPrecision();
+                averagePrecision += decisionTreeClassifier.getLastPredictionPrecision();
                 CsvHelper.writeFile("./predictions.csv", preds);
             } catch (Exception e) {
                 e.printStackTrace();
             }
         }
-        averageAccuracy /= 5;
-        System.out.println(new StringBuilder().append("average accuracy over 5 iterations: ").append(averageAccuracy));
+        averagePrecision /= 5;
+        System.out.println(new StringBuilder().append("average precision over 5 iterations: ").append(averagePrecision));
     }
 
     public static DecisionTreeClassifier getClassifier(HashMap<String, ArrayList<HashMap<String, String>>> data) throws FileNotFoundException {
